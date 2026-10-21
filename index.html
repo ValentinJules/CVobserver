@@ -43,17 +43,34 @@
 
   .panel{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
     padding:18px;box-shadow:var(--shadow);margin-bottom:20px}
-  .panel.teacher-panel{border-left:4px solid var(--teacher);
-    background:linear-gradient(180deg,#fff 0%,#faf5ff 100%)}
-  .session-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+  .session-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}
   label{display:block;font-size:.78rem;font-weight:600;color:var(--muted);
     text-transform:uppercase;letter-spacing:.04em;margin-bottom:5px}
-  input[type=text],input[type=date],textarea,select{
+  input[type=text],input[type=date],input[type=time],input[type=number],textarea,select{
     width:100%;font:inherit;padding:9px 11px;border:1px solid var(--line);
     border-radius:9px;background:#fff;color:var(--ink);outline:none;transition:.15s}
   input:focus,textarea:focus,select:focus{border-color:var(--primary);
     box-shadow:0 0 0 3px rgba(37,99,235,.12)}
   textarea{resize:vertical;min-height:90px}
+
+  /* --- chrono --- */
+  .timer-bar{
+    display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+    margin-top:14px;padding:10px 12px;background:#f8fafc;
+    border-radius:10px;border:1px solid var(--line);
+  }
+  .timer-bar button{padding:7px 12px;font-size:.85rem}
+  .timer-display{
+    font-family:"SF Mono",Menlo,Consolas,monospace;
+    font-size:1.05rem;font-weight:700;
+    background:#fff;padding:5px 12px;border-radius:8px;
+    border:1px solid var(--line);letter-spacing:.5px;
+  }
+  .timer-display.running{color:var(--primary);border-color:#93c5fd;background:#eff6ff}
+  .timer-course{
+    font-family:"SF Mono",Menlo,Consolas,monospace;
+    font-size:.85rem;color:var(--muted);
+  }
 
   .add-row{display:flex;gap:10px;flex-wrap:wrap}
   .add-row input{flex:1;min-width:180px}
@@ -72,13 +89,11 @@
   .btn-remove{border:none;background:transparent;color:#cbd5e1;font-size:1rem;padding:4px 8px;border-radius:6px}
   .btn-remove:hover{color:var(--danger);background:#fef2f2}
 
-  /* --- niveaux cognitifs --- */
   .levels{display:flex;gap:5px;flex-wrap:wrap}
   .lvl{font-size:.72rem;padding:5px 9px;border-radius:999px;background:#f8fafc;
     border:1px solid var(--line);color:var(--muted)}
   .lvl.active{background:#1e293b;color:#fff;border-color:#1e293b}
 
-  /* --- qualité --- */
   .quality-row{display:flex;align-items:center;gap:8px;padding:6px 8px;background:#f8fafc;border-radius:9px}
   .quality-label{font-size:.68rem;font-weight:700;color:var(--muted);
     text-transform:uppercase;letter-spacing:.05em;white-space:nowrap}
@@ -94,7 +109,6 @@
   .qbtn.active[data-q="5"]{background:#dcfce7;color:#15803d;border-color:#86efac}
   .q-legend{font-size:.65rem;color:var(--muted);font-style:italic;padding-left:2px}
 
-  /* --- types de participation --- */
   .types{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
   .type-btn{display:flex;flex-direction:column;align-items:center;gap:2px;
     padding:8px 4px;border-radius:10px;border:1px solid var(--line);background:#fff;
@@ -104,19 +118,88 @@
   .type-btn .ico{font-size:1rem}
   .type-btn .cnt{font-weight:700;color:var(--c);font-size:.75rem}
 
-  /* --- section enseignant --- */
-  .teacher-toolbar{display:flex;flex-direction:column;gap:8px;margin-bottom:12px}
-  .teacher-panel #teacherTypes{margin-bottom:8px}
+  /* --- panneau enseignant --- */
+  .panel.teacher-panel{
+    border:2px solid #c4b5fd;
+    border-left:6px solid var(--teacher);
+    background:linear-gradient(180deg,#faf5ff 0%,#fff 55%);
+    position:relative;
+  }
+  .teacher-panel h2{color:var(--teacher);display:flex;align-items:center;gap:8px}
+  .teacher-hint{
+    font-size:.82rem;color:var(--muted);margin:-6px 0 14px;
+    font-style:italic;
+  }
+  .teacher-toolbar{display:flex;flex-direction:column;gap:10px;margin-bottom:12px}
+  .teacher-options{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+  .teacher-options label{display:inline;margin:0;text-transform:none;font-size:.8rem;color:var(--ink);font-weight:500}
+  .teacher-options input[type=number]{width:70px;padding:5px 8px;font-size:.85rem}
+  .teacher-panel #teacherTypes{margin-bottom:12px}
+
+  /* --- encart dernière intervention + réactions --- */
+  .last-intervention{
+    margin-top:14px;padding:12px;
+    background:#fff;border:1px solid #ddd6fe;border-radius:10px;
+  }
+  .last-intervention-title{
+    font-size:.72rem;font-weight:700;color:var(--teacher);
+    text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px;
+  }
+  .last-intervention-main{
+    display:flex;align-items:center;gap:8px;flex-wrap:wrap;
+    margin-bottom:6px;
+  }
+  .last-intervention-reactions{
+    font-size:.85rem;color:var(--ink);
+    display:flex;gap:6px;flex-wrap:wrap;align-items:center;
+  }
+  .last-intervention-reactions strong{font-size:.78rem;color:var(--muted);font-weight:600}
+  .reaction-chip{
+    background:#faf5ff;color:var(--teacher);
+    font-size:.75rem;font-weight:600;
+    padding:2px 8px;border-radius:999px;
+    border:1px solid #ddd6fe;
+  }
+  .reaction-chip small{opacity:.75;margin-left:3px}
 
   /* --- journal --- */
-  .log-list{display:flex;flex-direction:column;gap:6px;max-height:360px;overflow-y:auto}
+  .log-list{display:flex;flex-direction:column;gap:6px;max-height:460px;overflow-y:auto}
   .log-item{display:flex;align-items:center;gap:8px;padding:7px 10px;background:#f8fafc;
     border-radius:8px;font-size:.85rem;flex-wrap:wrap}
-  .log-item.teacher{background:#faf5ff;border:1px solid #e9d5ff}
-  .log-time{color:var(--muted);font-variant-numeric:tabular-nums;font-size:.78rem;min-width:62px}
+  .log-item.teacher{
+    background:#faf5ff;
+    border:1px solid #e9d5ff;
+    padding:9px 12px;
+  }
+  .log-item.triggered{
+    margin-left:24px;
+    background:#faf5ff;
+    border-left:2px solid var(--teacher);
+    border-top-left-radius:0;
+    border-bottom-left-radius:0;
+  }
+  .log-time{color:var(--muted);font-variant-numeric:tabular-nums;font-size:.78rem;min-width:60px}
   .log-badge{font-size:.7rem;font-weight:600;padding:2px 8px;border-radius:999px;white-space:nowrap}
-  .role-badge{font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;
-    background:var(--teacher);color:#fff;padding:1px 6px;border-radius:4px}
+  .role-badge{
+    font-size:.6rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;
+    background:var(--teacher);color:#fff;padding:1px 6px;border-radius:4px;
+  }
+  .trigger-arrow{
+    color:var(--teacher);font-weight:700;
+    width:1em;display:inline-block;text-align:center;
+    font-size:1rem;
+  }
+  .trigger-delay{
+    font-size:.7rem;color:var(--teacher);
+    background:#faf5ff;padding:1px 6px;border-radius:4px;
+    font-weight:600;border:1px solid #e9d5ff;
+  }
+  .reaction-count{
+    margin-left:auto;
+    background:var(--teacher);color:#fff;
+    font-size:.68rem;font-weight:700;
+    padding:2px 8px;border-radius:999px;
+  }
   .log-q{font-size:.7rem;font-weight:700;padding:2px 7px;border-radius:999px;white-space:nowrap}
   .log-q.q1{background:#fef2f2;color:#dc2626}
   .log-q.q2{background:#fff7ed;color:#ea580c}
@@ -127,13 +210,14 @@
 
   @media(max-width:480px){
     .types{grid-template-columns:repeat(2,1fr)}
+    .log-item.triggered{margin-left:12px}
   }
 </style>
 </head>
 <body>
 
 <h1>Grille d'observation – Classe virtuelle</h1>
-<p class="subtitle">Cochez le niveau cognitif et la qualité, puis cliquez sur un type de participation pour l'enregistrer — élèves et enseignant·e sont observés séparément.</p>
+<p class="subtitle">Le chrono démarre au premier clic. Toute intervention étudiante dans la fenêtre de réaction suivant une intervention prof est automatiquement liée à celle-ci.</p>
 
 <div class="toolbar">
   <button id="btnUndo">↩ Annuler le dernier</button>
@@ -157,10 +241,18 @@
         <option>Classe virtuelle asynchrone (forum, LMS)</option>
         <option>Autre</option>
       </select></div>
-    <div><label for="inDate">Date</label>
+    <div><label for="inDate">Date du cours</label>
       <input type="date" id="inDate"></div>
+    <div><label for="inHeureDebut">Heure de début du cours</label>
+      <input type="time" id="inHeureDebut" step="1"></div>
     <div><label for="inObs">Observateur·rice</label>
       <input type="text" id="inObs" placeholder="Votre nom"></div>
+  </div>
+  <div class="timer-bar">
+    <button class="primary" id="btnStartTimer">▶ Démarrer</button>
+    <button id="btnResetTimer">↻ Réinitialiser</button>
+    <span class="timer-display" id="timerDisplay">00:00:00</span>
+    <span class="timer-course" id="timerCourse">→ cours --:--:--</span>
   </div>
 </section>
 
@@ -178,7 +270,8 @@
      SECTION ENSEIGNANT·E
      ===================================================== -->
 <section class="panel teacher-panel">
-  <h2>Interventions de l'enseignant·e</h2>
+  <h2>🧑‍🏫 Interventions de l'enseignant·e</h2>
+  <p class="teacher-hint">Section isolée : chaque clic enregistre une intervention prof horodatée. Les réactions étudiantes dans les secondes suivantes y sont rattachées automatiquement.</p>
   <div class="teacher-toolbar">
     <div class="quality-row">
       <span class="quality-label">Qualité</span>
@@ -190,10 +283,20 @@
         <button class="qbtn" data-q="5" title="5 – Excellente">5</button>
       </div>
     </div>
-    <input type="text" id="inTeacherTarget" placeholder="Destinataire (optionnel) : classe entière, groupe, élève…">
+    <div class="teacher-options">
+      <input type="text" id="inTeacherTarget" placeholder="Destinataire (optionnel) : classe entière, groupe, élève…">
+      <label>Fenêtre de réaction :
+        <input type="number" id="inReactionWindow" min="5" max="300" step="5"> s
+      </label>
+    </div>
   </div>
   <div class="q-legend" style="margin-bottom:8px;">1 Faible · 2 Passable · 3 Correcte · 4 Bonne · 5 Excellente</div>
   <div class="types" id="teacherTypes"></div>
+
+  <div class="last-intervention">
+    <div class="last-intervention-title">Dernière intervention prof</div>
+    <div id="lastInterventionBody"><span class="muted">Aucune intervention enregistrée</span></div>
+  </div>
 </section>
 
 <section class="panel">
@@ -223,9 +326,10 @@ const TYPES = {
 
 const TEACHER_TYPES = {
   consigne:     { label:'Consigne',       icon:'📋', color:'#2563eb' },
+  magistral:    { label:'Cours magistral', icon:'📚', color:'#7c3aed' },
   feedback:     { label:'Feedback',       icon:'💬', color:'#0891b2' },
   question:     { label:'Question posée', icon:'❓', color:'#ea580c' },
-  reformulation:{ label:'Reformulation',  icon:'🔄', color:'#7c3aed' },
+  reformulation:{ label:'Reformulation',  icon:'🔄', color:'#6d28d9' },
   etayage:      { label:'Étayage',        icon:'🪜', color:'#16a34a' },
   socio:        { label:'Socio-affectif', icon:'🤝', color:'#db2777' }
 };
@@ -239,11 +343,16 @@ const QUALITY = { 1:'Faible', 2:'Passable', 3:'Correcte', 4:'Bonne', 5:'Excellen
 function todayISO(){ return new Date().toISOString().slice(0,10); }
 function emptyCounts(){ return { oral:0, chat:0, sondage:0, question:0, socio:0, collab:0 }; }
 function emptyTeacherCounts(){
-  return { consigne:0, feedback:0, question:0, reformulation:0, etayage:0, socio:0 };
+  return { consigne:0, magistral:0, feedback:0, question:0, reformulation:0, etayage:0, socio:0 };
 }
+function pad(n){ return String(n).padStart(2,'0'); }
 
 let state = loadState() || {
-  session: { cours:'', scenario:'', date:todayISO(), observateur:'', notes:'' },
+  session: {
+    cours:'', scenario:'', date:todayISO(), heureDebut:'', observateur:'', notes:'',
+    timerRunning:false, timerElapsedBase:0, timerLastStart:null,
+    reactionWindow:30
+  },
   students: [],
   entries: [],
   teacherEntries: [],
@@ -252,14 +361,28 @@ let state = loadState() || {
   teacherTarget: ''
 };
 
-/* Migration — champs manquants (versions antérieures) */
+/* Migration */
+state.session.heureDebut    = state.session.heureDebut    ?? '';
+state.session.reactionWindow = state.session.reactionWindow ?? 30;
+state.session.timerRunning = state.session.timerRunning ?? false;
+state.session.timerElapsedBase = state.session.timerElapsedBase ?? 0;
+state.session.timerLastStart = state.session.timerLastStart ?? null;
+state.session.observateur = state.session.observateur || state.session.obs || '';
+
 state.students.forEach(s => { if (s.quality === undefined) s.quality = 3; });
-state.entries.forEach(e => { if (e.quality === undefined) e.quality = 3; });
+state.entries.forEach(e => {
+  if (e.quality === undefined) e.quality = 3;
+  if (e.elapsed === undefined) e.elapsed = 0;
+  if (e.triggeredBy === undefined) e.triggeredBy = null;
+});
 state.teacherEntries = state.teacherEntries || [];
+state.teacherEntries.forEach(e => {
+  if (!e.id) e.id = uid();
+  if (e.elapsed === undefined) e.elapsed = 0;
+});
 state.teacherCounts = Object.assign(emptyTeacherCounts(), state.teacherCounts || {});
 state.teacherQuality = state.teacherQuality ?? 3;
 state.teacherTarget = state.teacherTarget || '';
-state.session.observateur = state.session.observateur || state.session.obs || '';
 
 function saveState(){
   try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch(e){}
@@ -279,9 +402,68 @@ function escapeHtml(s){
   return String(s).replace(/[&<>"']/g, c =>
     ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 }
-function fmtTime(iso){
-  return new Date(iso).toLocaleTimeString('fr-FR',
-    {hour:'2-digit', minute:'2-digit', second:'2-digit'});
+
+/* --- chrono --- */
+function getElapsed(){
+  const t = state.session;
+  if (!t.timerRunning) return t.timerElapsedBase;
+  return t.timerElapsedBase + (Date.now() - t.timerLastStart) / 1000;
+}
+function formatElapsed(sec){
+  sec = Math.max(0, Math.floor(sec));
+  return `${pad(Math.floor(sec/3600))}:${pad(Math.floor((sec%3600)/60))}:${pad(sec%60)}`;
+}
+function courseTimeFromElapsed(sec){
+  const start = state.session.heureDebut || '';
+  const parts = start.split(':').map(Number);
+  if (parts.length < 2 || parts.some(isNaN)) return '--:--:--';
+  const base = (parts[0]||0)*3600 + (parts[1]||0)*60 + (parts[2]||0);
+  const total = base + Math.floor(sec);
+  return `${pad(Math.floor(total/3600)%24)}:${pad(Math.floor((total%3600)/60))}:${pad(total%60)}`;
+}
+function getCourseTime(){ return courseTimeFromElapsed(getElapsed()); }
+
+function ensureTimerRunning(){
+  if (!state.session.timerRunning){
+    state.session.timerRunning = true;
+    state.session.timerLastStart = Date.now();
+    saveState();
+    startTimerLoop();
+    updateTimerDisplay();
+  }
+}
+
+let timerInterval = null;
+function startTimerLoop(){
+  stopTimerLoop();
+  if (state.session.timerRunning){
+    timerInterval = setInterval(updateTimerDisplay, 1000);
+  }
+}
+function stopTimerLoop(){
+  if (timerInterval){ clearInterval(timerInterval); timerInterval = null; }
+}
+
+function updateTimerDisplay(){
+  const elapsed = getElapsed();
+  const disp = document.getElementById('timerDisplay');
+  disp.textContent = formatElapsed(elapsed);
+  disp.classList.toggle('running', state.session.timerRunning);
+
+  document.getElementById('timerCourse').textContent =
+    `→ cours ${courseTimeFromElapsed(elapsed)}`;
+
+  const btn = document.getElementById('btnStartTimer');
+  if (state.session.timerRunning){
+    btn.textContent = '⏸ Pause';
+    btn.classList.add('primary');
+  } else if (elapsed > 0){
+    btn.textContent = '▶ Reprendre';
+    btn.classList.remove('primary');
+  } else {
+    btn.textContent = '▶ Démarrer';
+    btn.classList.remove('primary');
+  }
 }
 
 /* =========================================================
@@ -290,6 +472,7 @@ function fmtTime(iso){
 const inCours = document.getElementById('inCours');
 const inScenario = document.getElementById('inScenario');
 const inDate = document.getElementById('inDate');
+const inHeureDebut = document.getElementById('inHeureDebut');
 const inObs = document.getElementById('inObs');
 const notes = document.getElementById('notes');
 
@@ -297,12 +480,15 @@ function renderSession(){
   inCours.value = state.session.cours || '';
   inScenario.value = state.session.scenario || '';
   inDate.value = state.session.date || todayISO();
+  inHeureDebut.value = state.session.heureDebut || '';
   inObs.value = state.session.observateur || '';
   notes.value = state.session.notes || '';
 }
 
-/* Mapping explicite id → clé d'état (corrige le bug inObs → obs) */
-const SESSION_KEYS = { inCours:'cours', inScenario:'scenario', inDate:'date', inObs:'observateur' };
+const SESSION_KEYS = {
+  inCours:'cours', inScenario:'scenario', inDate:'date',
+  inHeureDebut:'heureDebut', inObs:'observateur'
+};
 Object.keys(SESSION_KEYS).forEach(id => {
   const el = document.getElementById(id);
   el.addEventListener('input', () => {
@@ -310,7 +496,37 @@ Object.keys(SESSION_KEYS).forEach(id => {
     saveState();
   });
 });
+inHeureDebut.addEventListener('change', () => { updateTimerDisplay(); renderLog(); });
+inObs.addEventListener('input', () => {
+  state.session.observateur = inObs.value; saveState();
+});
 notes.addEventListener('input', () => { state.session.notes = notes.value; saveState(); });
+
+document.getElementById('btnStartTimer').addEventListener('click', () => {
+  if (state.session.timerRunning){
+    state.session.timerElapsedBase = getElapsed();
+    state.session.timerRunning = false;
+    state.session.timerLastStart = null;
+    saveState();
+    stopTimerLoop();
+  } else {
+    state.session.timerRunning = true;
+    state.session.timerLastStart = Date.now();
+    saveState();
+    startTimerLoop();
+  }
+  updateTimerDisplay();
+});
+
+document.getElementById('btnResetTimer').addEventListener('click', () => {
+  if (!confirm('Réinitialiser le chrono de session à zéro ?')) return;
+  state.session.timerRunning = false;
+  state.session.timerElapsedBase = 0;
+  state.session.timerLastStart = null;
+  saveState();
+  stopTimerLoop();
+  updateTimerDisplay();
+});
 
 /* =========================================================
    RENDU ÉLÈVES
@@ -370,14 +586,12 @@ grid.addEventListener('click', (e) => {
     if (s){ s.currentLevel = Number(lvlBtn.dataset.level); saveState(); renderStudents(); }
     return;
   }
-
   const qBtn = e.target.closest('.qbtn');
   if (qBtn){
     const s = state.students.find(x => x.id === qBtn.dataset.id);
     if (s){ s.quality = Number(qBtn.dataset.q); saveState(); renderStudents(); }
     return;
   }
-
   const removeBtn = e.target.closest('.btn-remove');
   if (removeBtn) return removeStudent(removeBtn.dataset.id);
 });
@@ -395,6 +609,7 @@ grid.addEventListener('input', (e) => {
 const teacherTypesEl = document.getElementById('teacherTypes');
 const teacherQualityEl = document.getElementById('teacherQualityBtns');
 const inTeacherTarget = document.getElementById('inTeacherTarget');
+const inReactionWindow = document.getElementById('inReactionWindow');
 
 function renderTeacher(){
   teacherTypesEl.innerHTML = Object.entries(TEACHER_TYPES).map(([key,t]) => `
@@ -408,10 +623,41 @@ function renderTeacher(){
   teacherQualityEl.querySelectorAll('.qbtn').forEach(b => {
     b.classList.toggle('active', Number(b.dataset.q) === state.teacherQuality);
   });
-
   if (document.activeElement !== inTeacherTarget) {
     inTeacherTarget.value = state.teacherTarget || '';
   }
+  if (document.activeElement !== inReactionWindow) {
+    inReactionWindow.value = state.session.reactionWindow;
+  }
+  renderLastIntervention();
+}
+
+function renderLastIntervention(){
+  const body = document.getElementById('lastInterventionBody');
+  const lastT = state.teacherEntries[state.teacherEntries.length - 1];
+  if (!lastT){
+    body.innerHTML = '<span class="muted">Aucune intervention enregistrée</span>';
+    return;
+  }
+  const t = TEACHER_TYPES[lastT.type];
+  const reactions = state.entries.filter(e => e.triggeredBy === lastT.id);
+  const reactionsHtml = reactions.length
+    ? reactions.map(r => {
+        const delay = Math.round(r.elapsed - lastT.elapsed);
+        return `<span class="reaction-chip">${escapeHtml(r.studentName)}<small>+${delay}s</small></span>`;
+      }).join(' ')
+    : `<span class="muted">Aucune réaction dans les ${state.session.reactionWindow}s</span>`;
+  body.innerHTML = `
+    <div class="last-intervention-main">
+      <span class="log-time">${courseTimeFromElapsed(lastT.elapsed)}</span>
+      <span class="log-badge" style="background:${t.color}1a;color:${t.color}">${t.icon} ${t.label}</span>
+      <span class="log-q q${lastT.quality}">Q${lastT.quality}</span>
+      ${lastT.target ? `<span class="muted" style="font-size:.8rem">→ ${escapeHtml(lastT.target)}</span>` : ''}
+    </div>
+    <div class="last-intervention-reactions">
+      <strong>Réactions (${reactions.length}) :</strong> ${reactionsHtml}
+    </div>
+  `;
 }
 
 teacherQualityEl.addEventListener('click', e => {
@@ -432,12 +678,17 @@ inTeacherTarget.addEventListener('input', () => {
   state.teacherTarget = inTeacherTarget.value;
   saveState();
 });
+inReactionWindow.addEventListener('input', () => {
+  const v = Math.max(5, Math.min(300, Number(inReactionWindow.value) || 30));
+  state.session.reactionWindow = v;
+  saveState();
+  renderLastIntervention();
+});
 
 /* =========================================================
    ACTIONS
    ========================================================= */
 const inStudent = document.getElementById('inStudent');
-
 document.getElementById('btnAddStudent').addEventListener('click', addStudents);
 inStudent.addEventListener('keydown', e => { if (e.key === 'Enter') addStudents(); });
 
@@ -467,42 +718,60 @@ function removeStudent(id){
 function addParticipation(studentId, type){
   const s = state.students.find(x => x.id === studentId);
   if (!s) return;
+  ensureTimerRunning();
+  const elapsed = getElapsed();
   s.counts[type]++;
+
+  /* Linking automatique */
+  const lastT = state.teacherEntries[state.teacherEntries.length - 1];
+  let triggeredBy = null;
+  if (lastT){
+    const delay = elapsed - lastT.elapsed;
+    if (delay >= 0 && delay <= state.session.reactionWindow) triggeredBy = lastT.id;
+  }
+
   state.entries.push({
     role: 'student',
     time: new Date().toISOString(),
+    elapsed,
     studentId, studentName: s.name,
     type,
     level: s.currentLevel,
-    quality: s.quality
+    quality: s.quality,
+    triggeredBy
   });
-  saveState(); renderStudents(); renderLog();
+  saveState(); renderStudents(); renderLastIntervention(); renderLog();
 }
 
 function addTeacherIntervention(type){
-  state.teacherCounts[type] = (state.teacherCounts[type] || 0) + 1;
-  state.teacherEntries.push({
+  ensureTimerRunning();
+  const elapsed = getElapsed();
+  const entry = {
+    id: uid(),
     role: 'teacher',
     time: new Date().toISOString(),
+    elapsed,
     type,
     quality: state.teacherQuality,
     target: (state.teacherTarget || '').trim()
-  });
+  };
+  state.teacherEntries.push(entry);
+  state.teacherCounts[type] = (state.teacherCounts[type] || 0) + 1;
   saveState(); renderTeacher(); renderLog();
 }
 
-/* --- Annuler la dernière observation (élève OU enseignant) --- */
 document.getElementById('btnUndo').addEventListener('click', () => {
   const lastS = state.entries[state.entries.length - 1];
   const lastT = state.teacherEntries[state.teacherEntries.length - 1];
   if (!lastS && !lastT) return;
 
-  const undoT =
-    lastT && (!lastS || new Date(lastT.time) >= new Date(lastS.time));
+  const undoT = lastT && (!lastS || lastT.elapsed >= lastS.elapsed);
 
   if (undoT){
     const e = state.teacherEntries.pop();
     if (state.teacherCounts[e.type] > 0) state.teacherCounts[e.type]--;
+    /* Délie les réactions orphelines */
+    state.entries.forEach(en => { if (en.triggeredBy === e.id) en.triggeredBy = null; });
   } else {
     const e = state.entries.pop();
     const s = state.students.find(x => x.id === e.studentId);
@@ -512,57 +781,81 @@ document.getElementById('btnUndo').addEventListener('click', () => {
 });
 
 document.getElementById('btnReset').addEventListener('click', () => {
-  if (!confirm('Réinitialiser toute la session (élèves, enseignant, participations, notes) ?')) return;
+  if (!confirm('Réinitialiser toute la session ?')) return;
   state = {
-    session: { cours:'', scenario:'', date:todayISO(), observateur:'', notes:'' },
-    students: [], entries: [],
-    teacherEntries: [], teacherCounts: emptyTeacherCounts(),
-    teacherQuality: 3, teacherTarget: ''
+    session: {
+      cours:'', scenario:'', date:todayISO(), heureDebut:'', observateur:'', notes:'',
+      timerRunning:false, timerElapsedBase:0, timerLastStart:null,
+      reactionWindow:30
+    },
+    students: [], entries: [], teacherEntries: [],
+    teacherCounts: emptyTeacherCounts(), teacherQuality: 3, teacherTarget: ''
   };
   localStorage.removeItem(STORAGE_KEY);
-  renderSession(); renderStudents(); renderTeacher(); renderLog();
+  stopTimerLoop();
+  renderSession(); renderStudents(); renderTeacher(); renderLog(); updateTimerDisplay();
 });
 
 /* =========================================================
-   JOURNAL (fusion élèves + enseignant)
+   JOURNAL
    ========================================================= */
 const logList = document.getElementById('logList');
 
 function renderLog(){
   const all = [
-    ...state.entries.map(e => ({ ...e, role:'student' })),
-    ...state.teacherEntries.map(e => ({ ...e, role:'teacher' }))
-  ].sort((a,b) => new Date(b.time) - new Date(a.time)).slice(0, 40);
+    ...state.entries.map(e => ({...e, role:'student'})),
+    ...state.teacherEntries.map(e => ({...e, role:'teacher'}))
+  ].sort((a,b) => {
+    if (a.elapsed !== b.elapsed) return a.elapsed - b.elapsed;
+    return new Date(a.time || 0) - new Date(b.time || 0);
+  });
 
   if (all.length === 0){
     logList.innerHTML = '<p class="log-empty">Aucune observation enregistrée.</p>';
     return;
   }
 
+  const reactionsByTeacher = {};
+  all.forEach(e => {
+    if (e.role === 'student' && e.triggeredBy){
+      (reactionsByTeacher[e.triggeredBy] = reactionsByTeacher[e.triggeredBy] || []).push(e);
+    }
+  });
+
+  const wasAtBottom = logList.scrollHeight - logList.scrollTop - logList.clientHeight < 40;
+
   logList.innerHTML = all.map(e => {
     if (e.role === 'teacher'){
       const t = TEACHER_TYPES[e.type];
+      const count = (reactionsByTeacher[e.id] || []).length;
       return `<div class="log-item teacher">
-        <span class="log-time">${fmtTime(e.time)}</span>
-        <span class="role-badge">Prof</span>
-        <span class="log-badge" style="background:${t.color}1a;color:${t.color}">
-          ${t.icon} ${t.label}
-        </span>
-        ${e.target ? `<span style="color:var(--muted);font-size:.78rem">→ ${escapeHtml(e.target)}</span>` : ''}
-        <span class="log-q q${e.quality}">Q${e.quality} · ${QUALITY[e.quality]}</span>
+        <span class="log-time">${courseTimeFromElapsed(e.elapsed)}</span>
+        <span class="role-badge">PROF</span>
+        <span class="log-badge" style="background:${t.color}1a;color:${t.color}">${t.icon} ${t.label}</span>
+        ${e.target ? `<span class="muted" style="font-size:.78rem">→ ${escapeHtml(e.target)}</span>` : ''}
+        <span class="log-q q${e.quality}">Q${e.quality}</span>
+        ${count ? `<span class="reaction-count">${count} ↳</span>` : ''}
       </div>`;
     }
     const t = TYPES[e.type];
-    return `<div class="log-item">
-      <span class="log-time">${fmtTime(e.time)}</span>
+    const isTrig = !!e.triggeredBy;
+    let delay = null;
+    if (isTrig){
+      const src = state.teacherEntries.find(x => x.id === e.triggeredBy);
+      if (src) delay = Math.round(e.elapsed - src.elapsed);
+    }
+    return `<div class="log-item ${isTrig ? 'triggered' : ''}">
+      <span class="log-time">${courseTimeFromElapsed(e.elapsed)}</span>
+      <span class="trigger-arrow">${isTrig ? '↳' : ''}</span>
       <strong>${escapeHtml(e.studentName)}</strong>
-      <span class="log-badge" style="background:${t.color}1a;color:${t.color}">
-        ${t.icon} ${t.label}
-      </span>
-      <span style="color:var(--muted);font-size:.78rem">Niv. ${e.level} · ${LEVELS[e.level]}</span>
-      <span class="log-q q${e.quality}">Q${e.quality} · ${QUALITY[e.quality]}</span>
+      <span class="log-badge" style="background:${t.color}1a;color:${t.color}">${t.icon} ${t.label}</span>
+      <span class="muted" style="font-size:.78rem">N${e.level} · ${LEVELS[e.level]}</span>
+      <span class="log-q q${e.quality}">Q${e.quality}</span>
+      ${delay !== null ? `<span class="trigger-delay">+${delay}s</span>` : ''}
     </div>`;
   }).join('');
+
+  if (wasAtBottom) logList.scrollTop = logList.scrollHeight;
 }
 
 /* =========================================================
@@ -582,79 +875,81 @@ function csvEscape(v){
   return /[;"\n]/.test(s) ? '"' + s.replace(/"/g,'""') + '"' : s;
 }
 
-/* --- Export détail : une ligne par observation (élèves + prof) --- */
 document.getElementById('btnExportCsv').addEventListener('click', () => {
-  const header = ['Date','Heure','Cours','Scénario','Rôle','Acteur',
-                  'Type','Niveau cognitif','Qualité (1-5)','Destinataire'];
+  const header = ['Date cours','Cours','Scénario','Rôle','Acteur','Type',
+                  'Niveau','Qualité','Destinataire','Temps session (s)','Heure cours',
+                  'Déclenché par','Délai depuis déclencheur (s)'];
+  const base = [state.session.date, state.session.cours, state.session.scenario];
 
   const studentRows = state.entries.map(e => {
-    const d = new Date(e.time);
-    return [
-      d.toLocaleDateString('fr-FR'), d.toLocaleTimeString('fr-FR'),
-      state.session.cours, state.session.scenario,
-      'Élève', e.studentName, TYPES[e.type].label,
-      e.level + ' - ' + LEVELS[e.level],
-      e.quality + ' - ' + QUALITY[e.quality],
-      ''
-    ];
+    const src = e.triggeredBy ? state.teacherEntries.find(x => x.id === e.triggeredBy) : null;
+    const delay = src ? Math.round(e.elapsed - src.elapsed) : '';
+    const srcLabel = src ? `${TEACHER_TYPES[src.type].label} @ ${courseTimeFromElapsed(src.elapsed)}` : '';
+    return [...base, 'Élève', e.studentName, TYPES[e.type].label,
+            e.level + ' - ' + LEVELS[e.level],
+            e.quality + ' - ' + QUALITY[e.quality],
+            '', Math.round(e.elapsed), courseTimeFromElapsed(e.elapsed),
+            srcLabel, delay];
   });
 
-  const teacherRows = state.teacherEntries.map(e => {
-    const d = new Date(e.time);
-    return [
-      d.toLocaleDateString('fr-FR'), d.toLocaleTimeString('fr-FR'),
-      state.session.cours, state.session.scenario,
-      'Enseignant·e', 'Enseignant·e', TEACHER_TYPES[e.type].label,
-      '',
-      e.quality + ' - ' + QUALITY[e.quality],
-      e.target || ''
-    ];
-  });
+  const teacherRows = state.teacherEntries.map(e => [
+    ...base, 'Enseignant·e', 'Enseignant·e', TEACHER_TYPES[e.type].label,
+    '', e.quality + ' - ' + QUALITY[e.quality], e.target || '',
+    Math.round(e.elapsed), courseTimeFromElapsed(e.elapsed), '', ''
+  ]);
 
   const rows = [...studentRows, ...teacherRows].sort((a,b) =>
-    (a[0] + ' ' + a[1]).localeCompare(b[0] + ' ' + b[1]));
+    (a[9] - b[9]) || String(a[4]).localeCompare(String(b[4])));
 
   const csv = [header, ...rows].map(r => r.map(csvEscape).join(';')).join('\n');
   download('\uFEFF' + csv, `observations_${state.session.date || todayISO()}.csv`,
            'text/csv;charset=utf-8');
 });
 
-/* --- Export synthèse : élèves + bloc enseignant séparé --- */
 document.getElementById('btnExportSummary').addEventListener('click', () => {
-  const header = ['Élève',
-                  ...Object.values(TYPES).map(t => t.label),
-                  'Total', 'Qualité moyenne', 'Niveau moyen'];
-
+  const header = ['Élève', ...Object.values(TYPES).map(t=>t.label), 'Total','Qualité moy.','Niveau moy.'];
   const rows = state.students.map(s => {
     const own = state.entries.filter(e => e.studentId === s.id);
     const total = Object.values(s.counts).reduce((a,b)=>a+b,0);
-    const avgQ = own.length ? (own.reduce((a,e)=>a+e.quality,0) / own.length).toFixed(2) : '—';
-    const avgL = own.length ? (own.reduce((a,e)=>a+e.level,0) / own.length).toFixed(2) : '—';
-    return [s.name, ...Object.keys(TYPES).map(k => s.counts[k]), total, avgQ, avgL];
+    const avgQ = own.length ? (own.reduce((a,e)=>a+e.quality,0)/own.length).toFixed(2) : '—';
+    const avgL = own.length ? (own.reduce((a,e)=>a+e.level,0)/own.length).toFixed(2) : '—';
+    return [s.name, ...Object.keys(TYPES).map(k=>s.counts[k]), total, avgQ, avgL];
   });
 
   const perTypeStudents = Object.keys(TYPES).map(k => {
     const own = state.entries.filter(e => e.type === k);
-    const avgQ = own.length ? (own.reduce((a,e)=>a+e.quality,0) / own.length).toFixed(2) : '—';
+    const avgQ = own.length ? (own.reduce((a,e)=>a+e.quality,0)/own.length).toFixed(2) : '—';
     return [TYPES[k].label, own.length, avgQ];
   });
 
   const perTypeTeacher = Object.keys(TEACHER_TYPES).map(k => {
-    const own = state.teacherEntries.filter(e => e.type === k);
-    const avgQ = own.length ? (own.reduce((a,e)=>a+e.quality,0) / own.length).toFixed(2) : '—';
-    return [TEACHER_TYPES[k].label, own.length, avgQ];
+    const interventions = state.teacherEntries.filter(e => e.type === k);
+    const reactions = interventions.flatMap(ti =>
+      state.entries.filter(e => e.triggeredBy === ti.id));
+    const delays = interventions.flatMap(ti =>
+      state.entries.filter(e => e.triggeredBy === ti.id)
+                    .map(e => e.elapsed - ti.elapsed));
+    const avgQ = interventions.length
+      ? (interventions.reduce((a,e)=>a+e.quality,0)/interventions.length).toFixed(2) : '—';
+    const avgReact = interventions.length
+      ? (reactions.length / interventions.length).toFixed(2) : '—';
+    const avgDelay = delays.length
+      ? (delays.reduce((a,b)=>a+b,0)/delays.length).toFixed(1) : '—';
+    return [TEACHER_TYPES[k].label, interventions.length, reactions.length,
+            avgReact, avgDelay, avgQ];
   });
-  const avgQteacher = state.teacherEntries.length
-    ? (state.teacherEntries.reduce((a,e)=>a+e.quality,0) / state.teacherEntries.length).toFixed(2)
-    : '—';
 
   const meta = [
     ['Cours', state.session.cours],
     ['Scénario', state.session.scenario],
-    ['Date', state.session.date],
+    ['Date du cours', state.session.date],
+    ['Heure de début', state.session.heureDebut],
     ['Observateur·rice', state.session.observateur],
+    ['Fenêtre de réaction (s)', state.session.reactionWindow],
     ['Nb observations élèves', state.entries.length],
     ['Nb interventions enseignant', state.teacherEntries.length],
+    ['Durée d\'observation (s)', Math.round(state.session.timerElapsedBase +
+      (state.session.timerRunning ? (Date.now() - state.session.timerLastStart)/1000 : 0))],
     []
   ];
 
@@ -664,14 +959,13 @@ document.getElementById('btnExportSummary').addEventListener('click', () => {
     ...rows.map(r => r.map(csvEscape).join(';')),
     '',
     'Synthèse par type de participation (élèves)',
-    ['Type','Nb observations','Qualité moyenne'].map(csvEscape).join(';'),
+    ['Type','Nb observations','Qualité moy.'].map(csvEscape).join(';'),
     ...perTypeStudents.map(r => r.map(csvEscape).join(';')),
     '',
-    'Synthèse interventions enseignant·e',
-    ['Type','Nb observations','Qualité moyenne'].map(csvEscape).join(';'),
-    ...perTypeTeacher.map(r => r.map(csvEscape).join(';')),
-    ['Qualité moyenne enseignant·e', state.teacherEntries.length, avgQteacher]
-      .map(csvEscape).join(';')
+    'Réactions aux interventions enseignant·e',
+    ['Type intervention','Nb interventions','Nb réactions',
+     'Réactions moy. / intervention','Délai moy. (s)','Qualité moy.'].map(csvEscape).join(';'),
+    ...perTypeTeacher.map(r => r.map(csvEscape).join(';'))
   ];
 
   download('\uFEFF' + lines.join('\n'),
@@ -691,6 +985,8 @@ renderSession();
 renderStudents();
 renderTeacher();
 renderLog();
+updateTimerDisplay();
+if (state.session.timerRunning) startTimerLoop();
 </script>
 </body>
 </html>
