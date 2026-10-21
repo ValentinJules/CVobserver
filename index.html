@@ -53,7 +53,6 @@
     box-shadow:0 0 0 3px rgba(37,99,235,.12)}
   textarea{resize:vertical;min-height:90px}
 
-  /* --- chrono --- */
   .timer-bar{
     display:flex;align-items:center;gap:10px;flex-wrap:wrap;
     margin-top:14px;padding:10px 12px;background:#f8fafc;
@@ -118,7 +117,6 @@
   .type-btn .ico{font-size:1rem}
   .type-btn .cnt{font-weight:700;color:var(--c);font-size:.75rem}
 
-  /* --- panneau enseignant --- */
   .panel.teacher-panel{
     border:2px solid #c4b5fd;
     border-left:6px solid var(--teacher);
@@ -135,8 +133,8 @@
   .teacher-options label{display:inline;margin:0;text-transform:none;font-size:.8rem;color:var(--ink);font-weight:500}
   .teacher-options input[type=number]{width:70px;padding:5px 8px;font-size:.85rem}
   .teacher-panel #teacherTypes{margin-bottom:12px}
+  .teacher-panel #teacherTypes{grid-template-columns:repeat(4,1fr)}
 
-  /* --- encart dernière intervention + réactions --- */
   .last-intervention{
     margin-top:14px;padding:12px;
     background:#fff;border:1px solid #ddd6fe;border-radius:10px;
@@ -162,7 +160,6 @@
   }
   .reaction-chip small{opacity:.75;margin-left:3px}
 
-  /* --- journal --- */
   .log-list{display:flex;flex-direction:column;gap:6px;max-height:460px;overflow-y:auto}
   .log-item{display:flex;align-items:center;gap:8px;padding:7px 10px;background:#f8fafc;
     border-radius:8px;font-size:.85rem;flex-wrap:wrap}
@@ -208,6 +205,9 @@
   .log-q.q5{background:#dcfce7;color:#15803d}
   .log-empty{color:var(--muted);font-style:italic;font-size:.85rem}
 
+  @media(max-width:640px){
+    .teacher-panel #teacherTypes{grid-template-columns:repeat(2,1fr)}
+  }
   @media(max-width:480px){
     .types{grid-template-columns:repeat(2,1fr)}
     .log-item.triggered{margin-left:12px}
@@ -232,15 +232,9 @@
   <div class="session-grid">
     <div><label for="inCours">Cours suivi</label>
       <input type="text" id="inCours" placeholder="ex. Mathématiques – 2de"></div>
-    <div><label for="inScenario">Type de classe virtuelle</label>
-      <select id="inScenario">
-        <option value="">— choisir —</option>
-        <option>Visioconférence classique (Zoom/Teams)</option>
-        <option>Classe hybride</option>
-        <option>Environnement immersif 3D (Gather, métavers)</option>
-        <option>Classe virtuelle asynchrone (forum, LMS)</option>
-        <option>Autre</option>
-      </select></div>
+    <div><label for="inScenario">Scénario pédagogique observé</label>
+      <input type="text" id="inScenario"
+             placeholder="ex. Magistral interactif, classe inversée, tutorat…"></div>
     <div><label for="inDate">Date du cours</label>
       <input type="date" id="inDate"></div>
     <div><label for="inHeureDebut">Heure de début du cours</label>
@@ -256,18 +250,8 @@
   </div>
 </section>
 
-<section class="panel">
-  <h2>Ajouter des élèves</h2>
-  <div class="add-row">
-    <input type="text" id="inStudent" placeholder="Nom de l'élève (ou plusieurs séparés par des virgules)">
-    <button class="primary" id="btnAddStudent">+ Ajouter</button>
-  </div>
-</section>
-
-<section id="studentsGrid" class="students-grid"></section>
-
 <!-- =====================================================
-     SECTION ENSEIGNANT·E
+     SECTION ENSEIGNANT·E (désormais AVANT les élèves)
      ===================================================== -->
 <section class="panel teacher-panel">
   <h2>🧑‍🏫 Interventions de l'enseignant·e</h2>
@@ -298,6 +282,19 @@
     <div id="lastInterventionBody"><span class="muted">Aucune intervention enregistrée</span></div>
   </div>
 </section>
+
+<!-- =====================================================
+     SECTION ÉLÈVES
+     ===================================================== -->
+<section class="panel">
+  <h2>Ajouter des élèves</h2>
+  <div class="add-row">
+    <input type="text" id="inStudent" placeholder="Nom de l'élève (ou plusieurs séparés par des virgules)">
+    <button class="primary" id="btnAddStudent">+ Ajouter</button>
+  </div>
+</section>
+
+<section id="studentsGrid" class="students-grid"></section>
 
 <section class="panel">
   <h2>Journal des observations</h2>
@@ -403,7 +400,6 @@ function escapeHtml(s){
     ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 }
 
-/* --- chrono --- */
 function getElapsed(){
   const t = state.session;
   if (!t.timerRunning) return t.timerElapsedBase;
@@ -722,7 +718,6 @@ function addParticipation(studentId, type){
   const elapsed = getElapsed();
   s.counts[type]++;
 
-  /* Linking automatique */
   const lastT = state.teacherEntries[state.teacherEntries.length - 1];
   let triggeredBy = null;
   if (lastT){
@@ -770,7 +765,6 @@ document.getElementById('btnUndo').addEventListener('click', () => {
   if (undoT){
     const e = state.teacherEntries.pop();
     if (state.teacherCounts[e.type] > 0) state.teacherCounts[e.type]--;
-    /* Délie les réactions orphelines */
     state.entries.forEach(en => { if (en.triggeredBy === e.id) en.triggeredBy = null; });
   } else {
     const e = state.entries.pop();
