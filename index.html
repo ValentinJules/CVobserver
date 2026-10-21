@@ -253,9 +253,11 @@ function renderSession(){
   notes.value = state.session.notes || '';
 }
 
-[inCours, inScenario, inDate, inObs].forEach(el => {
+const SESSION_KEYS = { inCours:'cours', inScenario:'scenario', inDate:'date', inObs:'observateur' };
+Object.keys(SESSION_KEYS).forEach(id => {
+  const el = document.getElementById(id);
   el.addEventListener('input', () => {
-    state.session[el.id.replace('in','').toLowerCase()] = el.value;
+    state.session[SESSION_KEYS[id]] = el.value;
     saveState();
   });
 });
