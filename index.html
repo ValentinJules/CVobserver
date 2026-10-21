@@ -1,0 +1,1029 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#14111e">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Rêves">
+<title>Journal de Rêves</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,500;0,600;1,500&amp;family=Work+Sans:wght@400;500;600&amp;display=swap" rel="stylesheet">
+<style>
+  /* ===================== TOKENS ===================== */
+  :root{
+    --ink:#14111e;
+    --dusk:#2c2140;
+    --horizon:#6e4f68;
+    --ember:#d9a066;
+    --mist:#cbc2dc;
+    --mist-dim:#8b83a6;
+    --paper:#f1e8d8;
+    --paper-ink:#332a1e;
+    --rust:#a8523a;
+  }
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;min-height:100%;}
+  body{
+    background:
+      radial-gradient(ellipse 60% 38% at 50% 0%, rgba(217,160,102,0.10), transparent 60%),
+      linear-gradient(180deg, var(--ink), var(--dusk) 55%, var(--ink));
+    background-attachment:fixed;
+    color:var(--mist);
+    font-family:'Work Sans',system-ui,sans-serif;
+    -webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
+  }
+
+  h1,h2,h3{font-family:'Fraunces',serif;font-weight:600;margin:0;}
+
+  /* ===================== STARFIELD ===================== */
+  #stars{position:fixed;inset:0;overflow:hidden;pointer-events:none;z-index:0;}
+  .star{position:absolute;background:#fff;border-radius:50%;opacity:0.5;animation:twinkle 4s ease-in-out infinite;}
+  @keyframes twinkle{0%,100%{opacity:0.12;}50%{opacity:0.8;}}
+
+  /* ===================== LAYOUT / VIEWS ===================== */
+  .app{position:relative;z-index:1;max-width:540px;margin:0 auto;padding:34px 20px 60px;}
+  .view{display:none;}
+  .view.active{display:block;animation:fadeIn .35s ease;}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+
+  .view-header{display:flex;align-items:center;gap:14px;margin-bottom:26px;}
+  .view-header h2{font-size:1.5rem;color:var(--mist);}
+  .back-btn{
+    width:38px;height:38px;border-radius:50%;flex-shrink:0;
+    border:1px solid rgba(255,255,255,0.14);background:rgba(255,255,255,0.05);
+    color:var(--mist);cursor:pointer;display:flex;align-items:center;justify-content:center;
+  }
+  .back-btn:hover{background:rgba(255,255,255,0.09);}
+
+  /* ===================== HOME ===================== */
+  .home-hero{text-align:center;padding:20px 0 30px;}
+  .moon-hero{width:74px;height:74px;margin:0 auto 14px;filter:drop-shadow(0 0 26px rgba(217,160,102,0.5));animation:moonPulse 5s ease-in-out infinite;}
+  .moon-hero circle{fill:var(--ember);}
+  @keyframes moonPulse{0%,100%{filter:drop-shadow(0 0 20px rgba(217,160,102,0.4));}50%{filter:drop-shadow(0 0 32px rgba(217,160,102,0.6));}}
+  .home-hero h1{font-size:2.1rem;font-style:italic;color:var(--mist);letter-spacing:0.2px;}
+  .home-hero h1 em{color:var(--ember);font-style:italic;}
+  .subtitle{color:var(--mist-dim);font-size:0.92rem;margin-top:8px;}
+
+  .home-actions{display:flex;flex-direction:column;gap:16px;margin-top:8px;}
+  .action-card{
+    display:flex;align-items:center;gap:16px;width:100%;
+    padding:20px 22px;border:none;border-radius:14px;cursor:pointer;
+    font-family:inherit;font-size:1.02rem;font-weight:500;text-align:left;
+    transition:transform .18s ease,box-shadow .18s ease;
+  }
+  .action-card:nth-of-type(1){transform:rotate(-0.5deg);}
+  .action-card:nth-of-type(2){transform:rotate(0.5deg);}
+  .action-card:hover{transform:rotate(0deg) translateY(-2px);}
+  .action-card:active{transform:rotate(0deg) scale(0.98);}
+  .action-card:disabled{opacity:0.45;pointer-events:none;}
+  .action-icon{flex-shrink:0;display:flex;color:var(--paper-ink);}
+
+  /* ===================== PAPER (signature) ===================== */
+  .paper{
+    background-color:var(--paper);
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E");
+    color:var(--paper-ink);
+    border-radius:14px;
+    box-shadow:0 16px 32px -14px rgba(0,0,0,0.5), 0 2px 8px rgba(0,0,0,0.22);
+  }
+  .action-card.paper{color:var(--paper-ink);}
+
+  /* ===================== NOTE FORM ===================== */
+  .note-paper{padding:22px 22px 26px;margin-bottom:22px;transform:rotate(-0.4deg);transition:transform .25s ease;}
+  .note-paper:focus-within{transform:rotate(0deg);}
+  .paper-label{
+    display:block;font-family:'Work Sans',sans-serif;font-size:0.72rem;text-transform:uppercase;
+    letter-spacing:0.08em;color:rgba(51,42,30,0.55);margin:18px 0 6px;
+  }
+  .paper-label:first-of-type{margin-top:0;}
+  .note-paper input[type="date"],
+  .note-paper textarea{
+    width:100%;background:transparent;border:none;border-radius:0;
+    color:var(--paper-ink);font-family:'Work Sans',sans-serif;font-size:1rem;outline:none;
+  }
+  .note-paper input[type="date"]{
+    color-scheme:light;border-bottom:1.5px solid rgba(51,42,30,0.25);padding:8px 2px 10px;
+  }
+  .note-paper input[type="date"]:focus-visible{outline:none;border-bottom-color:var(--ember);}
+  .note-paper textarea{
+    border-bottom:none;resize:vertical;min-height:160px;line-height:32px;padding:2px 2px 0;
+    background-image:repeating-linear-gradient(transparent, transparent 31px, rgba(51,42,30,0.14) 32px);
+  }
+  .note-paper textarea:focus-visible{outline:none;}
+  .note-paper textarea::placeholder{color:rgba(51,42,30,0.4);}
+
+  .tag-chips{display:flex;flex-wrap:wrap;gap:8px;}
+  .chip{
+    padding:7px 14px;border-radius:999px;border:1.3px solid rgba(51,42,30,0.35);
+    background:transparent;color:var(--paper-ink);font-family:inherit;font-size:0.85rem;cursor:pointer;
+    transition:background .15s ease,color .15s ease;
+  }
+  .chip.selected{background:var(--paper-ink);color:var(--paper);border-color:var(--paper-ink);}
+  .chip:focus-visible{outline:2px solid var(--paper-ink);outline-offset:2px;}
+
+  .add-tag-row{display:flex;gap:8px;margin-top:14px;}
+  .add-tag-row input{
+    flex:1;border:1.3px solid rgba(51,42,30,0.25)!important;border-radius:999px!important;
+    padding:8px 14px!important;font-size:0.88rem!important;
+  }
+  .add-tag-row input:focus-visible{outline:none;border-color:var(--ember)!important;}
+  .add-tag-btn{
+    width:38px;height:38px;border-radius:50%;border:1.3px solid rgba(51,42,30,0.35);
+    background:transparent;color:var(--paper-ink);cursor:pointer;flex-shrink:0;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .add-tag-btn:hover{background:rgba(51,42,30,0.08);}
+  .add-tag-btn:focus-visible{outline:2px solid var(--paper-ink);outline-offset:2px;}
+
+  .save-btn{
+    width:100%;padding:15px;border-radius:14px;border:none;cursor:pointer;
+    background:linear-gradient(135deg,var(--ember),#c98a4e);color:#241a0c;
+    font-family:inherit;font-size:1rem;font-weight:600;
+    box-shadow:0 10px 26px -8px rgba(217,160,102,0.5);transition:transform .15s ease;
+  }
+  .save-btn:active{transform:scale(0.98);}
+
+  /* ===================== EXPLORE ===================== */
+  .explore-section{margin-bottom:30px;}
+  .eyebrow{
+    font-family:'Work Sans',sans-serif;font-size:0.74rem;text-transform:uppercase;
+    letter-spacing:0.09em;color:var(--mist-dim);margin-bottom:14px;
+  }
+  .graph-caption{font-size:0.78rem;color:var(--mist-dim);margin:-8px 0 14px;}
+  .tag-graph-container{width:100%;min-height:320px;}
+  .tag-graph-svg{display:block;overflow:visible;}
+  .graph-edge{stroke:var(--horizon);stroke-opacity:0.55;stroke-linecap:round;}
+  .graph-node{cursor:pointer;}
+  .graph-node-circle{fill:var(--ember);fill-opacity:0.85;stroke:var(--ink);stroke-width:2px;transition:fill-opacity .15s ease;}
+  .graph-node-label{fill:var(--mist);font-family:'Work Sans',sans-serif;font-size:11px;pointer-events:none;text-anchor:middle;}
+  .graph-node:hover .graph-node-circle{fill-opacity:1;}
+  .graph-node.active .graph-node-circle{fill:var(--mist);stroke:var(--ember);stroke-width:2.5px;}
+  .graph-node.active .graph-node-label{fill:var(--ember);font-weight:600;}
+
+  .search-row input{
+    width:100%;padding:12px 14px;border-radius:12px;border:1px solid rgba(255,255,255,0.14);
+    background:rgba(255,255,255,0.05);color:var(--mist);font-family:inherit;font-size:0.95rem;outline:none;
+  }
+  .search-row input:focus-visible{border-color:var(--ember);}
+  .active-filter{
+    display:flex;align-items:center;justify-content:space-between;font-size:0.85rem;
+    color:var(--mist-dim);margin-top:10px;padding:0 2px;
+  }
+  .active-filter strong{color:var(--ember);font-weight:600;}
+  .active-filter button{background:none;border:none;color:var(--mist-dim);cursor:pointer;display:flex;padding:4px;}
+  .active-filter button:hover{color:var(--mist);}
+
+  .dream-list{display:flex;flex-direction:column;gap:14px;margin-top:16px;}
+  .dream-card{padding:16px 18px;cursor:pointer;transition:transform .2s ease;}
+  .dream-list .dream-card:nth-child(odd){transform:rotate(-0.6deg);}
+  .dream-list .dream-card:nth-child(even){transform:rotate(0.5deg);}
+  .dream-card:hover,.dream-card.expanded{transform:rotate(0deg);}
+  .dream-card-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
+  .dream-date{font-family:'Fraunces',serif;font-size:0.85rem;color:rgba(51,42,30,0.65);}
+  .delete-btn{background:none;border:none;color:rgba(51,42,30,0.55);cursor:pointer;padding:4px;display:flex;}
+  .delete-btn:hover{color:var(--rust);}
+  .dream-desc{
+    margin:0 0 10px;font-size:0.95rem;line-height:1.55;white-space:pre-wrap;
+    display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden;
+  }
+  .dream-card.expanded .dream-desc{-webkit-line-clamp:unset;}
+  .dream-tags{display:flex;flex-wrap:wrap;gap:6px;}
+  .mini-chip{font-size:0.72rem;padding:3px 10px;border-radius:999px;border:1px solid rgba(51,42,30,0.3);background:rgba(51,42,30,0.06);color:var(--paper-ink);}
+
+  .empty-note{color:var(--mist-dim);font-size:0.9rem;font-style:italic;padding:6px 2px;}
+
+  .explore-footer{display:flex;gap:10px;margin-top:10px;flex-wrap:wrap;}
+  .ghost-btn{
+    flex:1;min-width:150px;display:flex;align-items:center;justify-content:center;gap:8px;
+    padding:12px;border-radius:12px;border:1px solid rgba(255,255,255,0.14);
+    background:rgba(255,255,255,0.03);color:var(--mist-dim);font-size:0.85rem;
+    cursor:pointer;font-family:inherit;
+  }
+  .ghost-btn:hover{color:var(--mist);border-color:rgba(255,255,255,0.24);}
+  .install-btn{display:none;width:100%;margin-top:20px;}
+
+  /* ===================== TOAST ===================== */
+  .toast{
+    position:fixed;bottom:26px;left:50%;transform:translateX(-50%) translateY(16px);
+    background:#211c38;border:1px solid rgba(255,255,255,0.12);color:var(--mist);
+    padding:12px 20px;border-radius:12px;font-size:0.9rem;opacity:0;pointer-events:none;
+    transition:all .25s ease;z-index:20;max-width:82%;text-align:center;
+  }
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+  /* ===================== MODAL ===================== */
+  .modal-overlay{
+    position:fixed;inset:0;background:rgba(8,7,17,0.72);backdrop-filter:blur(3px);
+    display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;
+    transition:opacity .2s ease;z-index:30;padding:20px;
+  }
+  .modal-overlay.show{opacity:1;pointer-events:auto;}
+  .modal-box{background:#1b1830;border:1px solid rgba(255,255,255,0.12);border-radius:16px;padding:22px;max-width:340px;width:100%;}
+  .modal-box p{margin:0 0 18px;font-size:0.95rem;color:var(--mist);}
+  .ios-steps{margin:0 0 18px;padding-left:20px;font-size:0.88rem;line-height:1.6;color:var(--mist-dim);}
+  .modal-actions{display:flex;gap:10px;}
+  .modal-btn{flex:1;padding:11px;border-radius:10px;border:none;cursor:pointer;font-family:inherit;font-size:0.9rem;}
+  .modal-btn.ghost{background:rgba(255,255,255,0.07);color:var(--mist);}
+  .modal-btn.danger{background:var(--rust);color:#fff;}
+
+  /* ===================== ACCESSIBILITY / RESPONSIVE ===================== */
+  button:focus-visible,input:focus-visible,textarea:focus-visible,label:focus-visible{
+    outline:2px solid var(--ember);outline-offset:2px;
+  }
+  @media (min-width:600px){
+    .home-actions{flex-direction:row;}
+    .home-actions .action-card{width:auto;flex:1;}
+  }
+  @media (prefers-reduced-motion: reduce){
+    .star,.moon-hero,.view,.action-card,.dream-card,.note-paper{animation:none!important;transition:none!important;}
+  }
+</style>
+</head>
+<body>
+<div id="stars"></div>
+
+<main class="app">
+
+  <!-- ===================== HOME ===================== -->
+  <section id="view-home" class="view active">
+    <div class="home-hero">
+      <svg class="moon-hero" viewBox="0 0 100 100">
+        <mask id="moonMask">
+          <rect width="100" height="100" fill="white"/>
+          <circle cx="60" cy="34" r="34" fill="black"/>
+        </mask>
+        <circle cx="42" cy="52" r="36" mask="url(#moonMask)"/>
+      </svg>
+      <h1>Journal de <em>Rêves</em></h1>
+      <p class="subtitle" id="dream-count-subtitle">Chargement…</p>
+    </div>
+
+    <div class="home-actions">
+      <button class="action-card paper" id="btn-goto-note" disabled>
+        <span class="action-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" width="22" height="22"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg>
+        </span>
+        <span>Noter un rêve</span>
+      </button>
+      <button class="action-card paper" id="btn-goto-explore" disabled>
+        <span class="action-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" width="22" height="22"><path d="M20.5 14.5A8.38 8.38 0 0 1 12 22a8.5 8.5 0 0 1 0-17 8.38 8.38 0 0 1 3.05.56A6 6 0 0 0 20.5 14.5Z"/></svg>
+        </span>
+        <span>Explorer mes rêves</span>
+      </button>
+    </div>
+
+    <button id="install-btn" class="ghost-btn install-btn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><rect x="6" y="2" width="12" height="20" rx="2"/><line x1="11" y1="18" x2="13" y2="18"/></svg>
+      <span>Installer l'application</span>
+    </button>
+  </section>
+
+  <!-- ===================== NOTE ===================== -->
+  <section id="view-note" class="view">
+    <header class="view-header">
+      <button class="back-btn" data-goto="view-home" aria-label="Retour">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M15 18l-6-6 6-6"/></svg>
+      </button>
+      <h2>Noter un rêve</h2>
+    </header>
+
+    <form id="dream-form">
+      <div class="paper note-paper">
+        <label class="paper-label" for="dream-date">Date du rêve</label>
+        <input type="date" id="dream-date" required>
+
+        <label class="paper-label" for="dream-desc">Raconte ton rêve</label>
+        <textarea id="dream-desc" rows="6" placeholder="Ce dont tu te souviens…"></textarea>
+
+        <label class="paper-label">Étiquettes</label>
+        <div class="tag-chips" id="tag-chips"></div>
+
+        <div class="add-tag-row">
+          <input type="text" id="new-tag-input" placeholder="Ajouter une étiquette">
+          <button type="button" class="add-tag-btn" id="add-tag-btn" aria-label="Ajouter l'étiquette">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" width="16" height="16"><path d="M12 5v14"/><path d="M5 12h14"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <button type="submit" class="save-btn">Enregistrer le rêve</button>
+    </form>
+  </section>
+
+  <!-- ===================== EXPLORE ===================== -->
+  <section id="view-explore" class="view">
+    <header class="view-header">
+      <button class="back-btn" data-goto="view-home" aria-label="Retour">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M15 18l-6-6 6-6"/></svg>
+      </button>
+      <h2>Explorer mes rêves</h2>
+    </header>
+
+    <div class="explore-section">
+      <p class="eyebrow">Étiquettes</p>
+      <p class="graph-caption">La taille reflète la fréquence, les traits les rêves en commun</p>
+      <div id="tag-graph" class="tag-graph-container"></div>
+    </div>
+
+    <div class="explore-section">
+      <div class="search-row">
+        <input type="text" id="search-input" placeholder="Rechercher dans mes rêves…">
+      </div>
+      <div id="active-filter" class="active-filter" style="display:none;">
+        <span>Filtré par <strong id="active-filter-tag"></strong></span>
+        <button id="clear-filter-btn" aria-label="Effacer le filtre">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+        </button>
+      </div>
+      <div id="dream-list" class="dream-list"></div>
+    </div>
+
+    <div class="explore-footer">
+      <button id="export-btn" class="ghost-btn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>
+        <span>Exporter en JSON</span>
+      </button>
+      <label for="import-input" class="ghost-btn" tabindex="0" role="button">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M17 8l-5-5-5 5"/><path d="M12 3v12"/></svg>
+        <span>Importer un JSON</span>
+      </label>
+      <input type="file" id="import-input" accept="application/json" hidden>
+    </div>
+  </section>
+
+</main>
+
+<div id="toast" class="toast"></div>
+
+<div id="modal-overlay" class="modal-overlay">
+  <div class="modal-box">
+    <p id="modal-message"></p>
+    <div class="modal-actions">
+      <button id="modal-cancel-btn" class="modal-btn ghost">Annuler</button>
+      <button id="modal-confirm-btn" class="modal-btn danger">Supprimer</button>
+    </div>
+  </div>
+</div>
+
+<div id="ios-install-overlay" class="modal-overlay">
+  <div class="modal-box">
+    <p>Pour installer le journal sur ton iPhone :</p>
+    <ol class="ios-steps">
+      <li>Appuie sur <strong>Partager</strong> dans Safari (l'icône avec une flèche)</li>
+      <li>Choisis <strong>Sur l'écran d'accueil</strong></li>
+    </ol>
+    <div class="modal-actions">
+      <button id="ios-install-close" class="modal-btn ghost" style="flex:1;">Compris</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  'use strict';
+
+  var DEFAULT_TAGS = ['Vol','Chute','Poursuite','Eau','Animaux','Famille','Travail','École','Voyage','Peur','Joie','Étrange','Lucide','Cauchemar','Répétitif','Nostalgie'];
+
+  var dreams = [];
+  var tags = DEFAULT_TAGS.slice();
+  var selectedTags = new Set();
+  var activeFilterTag = null;
+  var graphNodeEls = [];
+  var currentGraphRaf = null;
+
+  /* ===================== STORAGE ===================== */
+  async function loadData(){
+    try{
+      var res = await window.storage.get('dreams', false);
+      if(res && res.value) dreams = JSON.parse(res.value);
+    }catch(e){ dreams = []; }
+
+    try{
+      var resTags = await window.storage.get('tags', false);
+      if(resTags && resTags.value) tags = JSON.parse(resTags.value);
+    }catch(e){ tags = DEFAULT_TAGS.slice(); }
+  }
+
+  async function persistDreams(){
+    try{
+      var result = await window.storage.set('dreams', JSON.stringify(dreams), false);
+      if(!result) showToast("La sauvegarde a échoué");
+    }catch(e){ showToast("La sauvegarde a échoué"); }
+  }
+
+  async function persistTags(){
+    try{ await window.storage.set('tags', JSON.stringify(tags), false); }catch(e){ /* non bloquant */ }
+  }
+
+  /* ===================== HELPERS ===================== */
+  function todayLocalISO(){
+    var d = new Date();
+    var offset = d.getTimezoneOffset();
+    var local = new Date(d.getTime() - offset*60000);
+    return local.toISOString().slice(0,10);
+  }
+
+  function formatDate(iso){
+    var d = new Date(iso + 'T00:00:00');
+    return d.toLocaleDateString('fr-FR', { day:'numeric', month:'long', year:'numeric' });
+  }
+
+  function escapeHtml(str){
+    var div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+  }
+
+  function computeTagFrequency(){
+    var freq = {};
+    dreams.forEach(function(d){
+      (d.tags||[]).forEach(function(t){ freq[t] = (freq[t]||0) + 1; });
+    });
+    return Object.entries(freq).sort(function(a,b){ return b[1]-a[1]; });
+  }
+
+  /* ===================== VIEW SWITCHING ===================== */
+  function showView(id){
+    document.querySelectorAll('.view').forEach(function(v){ v.classList.remove('active'); });
+    document.getElementById(id).classList.add('active');
+    window.scrollTo(0,0);
+  }
+
+  /* ===================== TOAST ===================== */
+  var toastTimeout;
+  function showToast(msg){
+    var toast = document.getElementById('toast');
+    toast.textContent = msg;
+    toast.classList.add('show');
+    clearTimeout(toastTimeout);
+    toastTimeout = setTimeout(function(){ toast.classList.remove('show'); }, 2200);
+  }
+
+  /* ===================== CUSTOM CONFIRM MODAL ===================== */
+  function customConfirm(message){
+    return new Promise(function(resolve){
+      var overlay = document.getElementById('modal-overlay');
+      document.getElementById('modal-message').textContent = message;
+      overlay.classList.add('show');
+
+      var confirmBtn = document.getElementById('modal-confirm-btn');
+      var cancelBtn = document.getElementById('modal-cancel-btn');
+
+      function cleanup(result){
+        overlay.classList.remove('show');
+        confirmBtn.removeEventListener('click', onConfirm);
+        cancelBtn.removeEventListener('click', onCancel);
+        resolve(result);
+      }
+      function onConfirm(){ cleanup(true); }
+      function onCancel(){ cleanup(false); }
+
+      confirmBtn.addEventListener('click', onConfirm);
+      cancelBtn.addEventListener('click', onCancel);
+    });
+  }
+
+  /* ===================== HOME ===================== */
+  function renderHome(){
+    var subtitle = document.getElementById('dream-count-subtitle');
+    var n = dreams.length;
+    subtitle.textContent = n === 0 ? "Pas encore de rêve enregistré"
+      : n === 1 ? "1 rêve enregistré"
+      : n + " rêves enregistrés";
+  }
+
+  /* ===================== NOTE FORM ===================== */
+  function buildTagChips(){
+    var container = document.getElementById('tag-chips');
+    container.innerHTML = '';
+    tags.forEach(function(tag){
+      var chip = document.createElement('button');
+      chip.type = 'button';
+      chip.className = 'chip' + (selectedTags.has(tag) ? ' selected' : '');
+      chip.textContent = tag;
+      chip.addEventListener('click', function(){
+        if(selectedTags.has(tag)) selectedTags.delete(tag);
+        else selectedTags.add(tag);
+        chip.classList.toggle('selected');
+      });
+      container.appendChild(chip);
+    });
+  }
+
+  function resetNoteForm(){
+    document.getElementById('dream-date').value = todayLocalISO();
+    document.getElementById('dream-desc').value = '';
+    selectedTags = new Set();
+    buildTagChips();
+  }
+
+  document.getElementById('dream-form').addEventListener('submit', async function(e){
+    e.preventDefault();
+    var date = document.getElementById('dream-date').value;
+    var desc = document.getElementById('dream-desc').value.trim();
+    if(!date){ showToast("Choisis une date"); return; }
+    if(!desc){ showToast("Décris ton rêve avant de l'enregistrer"); return; }
+
+    var dream = {
+      id: 'd_' + Date.now() + '_' + Math.random().toString(36).slice(2,8),
+      date: date,
+      description: desc,
+      tags: Array.from(selectedTags)
+    };
+    dreams.push(dream);
+    await persistDreams();
+    renderHome();
+    showToast("Rêve enregistré ✓");
+    setTimeout(function(){
+      showView('view-home');
+      resetNoteForm();
+    }, 700);
+  });
+
+  document.getElementById('add-tag-btn').addEventListener('click', async function(){
+    var input = document.getElementById('new-tag-input');
+    var val = input.value.trim();
+    if(!val) return;
+    var existing = tags.find(function(t){ return t.toLowerCase() === val.toLowerCase(); });
+    var finalTag = existing || val;
+    if(!existing){
+      tags.push(val);
+      await persistTags();
+    }
+    selectedTags.add(finalTag);
+    input.value = '';
+    buildTagChips();
+  });
+
+  document.getElementById('new-tag-input').addEventListener('keydown', function(e){
+    if(e.key === 'Enter'){
+      e.preventDefault();
+      document.getElementById('add-tag-btn').click();
+    }
+  });
+
+  /* ===================== EXPLORE : GRAPHE D'ÉTIQUETTES ===================== */
+  function computeCoOccurrence(){
+    var pairs = {};
+    dreams.forEach(function(d){
+      var ts = Array.from(new Set(d.tags || [])).sort();
+      for(var i=0;i<ts.length;i++){
+        for(var j=i+1;j<ts.length;j++){
+          var key = ts[i] + '|||' + ts[j];
+          pairs[key] = (pairs[key] || 0) + 1;
+        }
+      }
+    });
+    return pairs;
+  }
+
+  function buildTagGraph(){
+    var freqEntries = computeTagFrequency();
+    if(freqEntries.length === 0) return null;
+
+    var maxCount = freqEntries[0][1];
+    var minR = 17, maxR = 44;
+
+    var nodes = freqEntries.map(function(entry){
+      var count = entry[1];
+      var r = minR + (maxR - minR) * Math.sqrt(count / maxCount);
+      return { tag: entry[0], count: count, r: r, x:0, y:0, vx:0, vy:0 };
+    });
+
+    var nodeIndex = {};
+    nodes.forEach(function(n,i){ nodeIndex[n.tag] = i; });
+
+    var pairCounts = computeCoOccurrence();
+    var maxWeight = 0;
+    var edges = Object.keys(pairCounts).map(function(key){
+      var parts = key.split('|||');
+      var w = pairCounts[key];
+      if(w > maxWeight) maxWeight = w;
+      return { a: nodeIndex[parts[0]], b: nodeIndex[parts[1]], weight: w };
+    }).filter(function(e){ return e.a !== undefined && e.b !== undefined; });
+
+    return { nodes: nodes, edges: edges, maxWeight: maxWeight };
+  }
+
+  function tickSimulation(state){
+    var nodes = state.nodes, edges = state.edges, alpha = state.alpha;
+
+    for(var i=0;i<nodes.length;i++){
+      for(var j=i+1;j<nodes.length;j++){
+        var a = nodes[i], b = nodes[j];
+        var dx = b.x - a.x, dy = b.y - a.y;
+        var distSq = dx*dx + dy*dy || 0.01;
+        var dist = Math.sqrt(distSq);
+        var minDist = a.r + b.r + 14;
+        var force = (900 / distSq) * alpha;
+        if(dist < minDist) force += (minDist - dist) * 0.6 * alpha;
+        var fx = (dx/dist) * force, fy = (dy/dist) * force;
+        a.vx -= fx; a.vy -= fy;
+        b.vx += fx; b.vy += fy;
+      }
+    }
+
+    edges.forEach(function(e){
+      var a = nodes[e.a], b = nodes[e.b];
+      var dx = b.x - a.x, dy = b.y - a.y;
+      var dist = Math.sqrt(dx*dx + dy*dy) || 0.01;
+      var idealDist = 90 / (1 + e.weight * 0.35);
+      var force = (dist - idealDist) * 0.02 * alpha;
+      var fx = (dx/dist) * force, fy = (dy/dist) * force;
+      a.vx += fx; a.vy += fy;
+      b.vx -= fx; b.vy -= fy;
+    });
+
+    var cx = state.width/2, cy = state.height/2;
+    nodes.forEach(function(n){
+      n.vx += (cx - n.x) * 0.006 * alpha;
+      n.vy += (cy - n.y) * 0.006 * alpha;
+    });
+
+    nodes.forEach(function(n){
+      n.vx *= 0.82; n.vy *= 0.82;
+      n.x += n.vx; n.y += n.vy;
+      n.x = Math.max(n.r+4, Math.min(state.width - n.r - 4, n.x));
+      n.y = Math.max(n.r+4, Math.min(state.height - n.r - 4, n.y));
+    });
+
+    state.alpha *= 0.985;
+  }
+
+  function updateGraphActiveState(){
+    graphNodeEls.forEach(function(item){
+      item.el.classList.toggle('active', activeFilterTag === item.tag);
+    });
+  }
+
+  function renderTagGraph(){
+    if(currentGraphRaf){ cancelAnimationFrame(currentGraphRaf); currentGraphRaf = null; }
+    var container = document.getElementById('tag-graph');
+    container.innerHTML = '';
+    graphNodeEls = [];
+
+    var graph = buildTagGraph();
+    if(!graph || graph.nodes.length === 0){
+      container.innerHTML = '<p class="empty-note">Les étiquettes apparaîtront ici après ton premier rêve noté</p>';
+      return;
+    }
+
+    var width = container.clientWidth || 300;
+    var height = 320;
+    var svgNS = 'http://www.w3.org/2000/svg';
+
+    var svg = document.createElementNS(svgNS, 'svg');
+    svg.setAttribute('viewBox', '0 0 ' + width + ' ' + height);
+    svg.setAttribute('width', '100%');
+    svg.setAttribute('height', height);
+    svg.setAttribute('class', 'tag-graph-svg');
+
+    var edgeGroup = document.createElementNS(svgNS, 'g');
+    var nodeGroup = document.createElementNS(svgNS, 'g');
+    svg.appendChild(edgeGroup);
+    svg.appendChild(nodeGroup);
+    container.appendChild(svg);
+
+    var cx = width/2, cy = height/2;
+    var ringR = Math.min(width, height) * 0.32;
+    graph.nodes.forEach(function(n,i){
+      var angle = (i / graph.nodes.length) * Math.PI * 2;
+      n.x = cx + Math.cos(angle) * ringR + (Math.random()-0.5)*10;
+      n.y = cy + Math.sin(angle) * ringR + (Math.random()-0.5)*10;
+    });
+
+    var minW = 1.5, maxW = 7;
+    var edgeEls = graph.edges.map(function(e){
+      var line = document.createElementNS(svgNS, 'line');
+      var sw = graph.maxWeight > 0 ? minW + (maxW-minW) * (e.weight/graph.maxWeight) : minW;
+      line.setAttribute('stroke-width', sw.toFixed(2));
+      line.setAttribute('class', 'graph-edge');
+      edgeGroup.appendChild(line);
+      return { el: line, edge: e };
+    });
+
+    graph.nodes.forEach(function(n){
+      var g = document.createElementNS(svgNS, 'g');
+      g.setAttribute('class', 'graph-node' + (activeFilterTag === n.tag ? ' active' : ''));
+
+      var hitArea = document.createElementNS(svgNS, 'circle');
+      hitArea.setAttribute('r', (n.r + 16).toFixed(1));
+      hitArea.setAttribute('fill', 'transparent');
+      hitArea.style.pointerEvents = 'all';
+
+      var circle = document.createElementNS(svgNS, 'circle');
+      circle.setAttribute('r', n.r.toFixed(1));
+      circle.setAttribute('class', 'graph-node-circle');
+
+      var text = document.createElementNS(svgNS, 'text');
+      text.setAttribute('class', 'graph-node-label');
+      text.setAttribute('dy', (n.r + 13).toFixed(1));
+      text.textContent = n.tag;
+
+      g.appendChild(hitArea);
+      g.appendChild(circle);
+      g.appendChild(text);
+      g.addEventListener('click', function(){
+        activeFilterTag = (activeFilterTag === n.tag) ? null : n.tag;
+        updateGraphActiveState();
+        renderDreamList();
+      });
+
+      nodeGroup.appendChild(g);
+      graphNodeEls.push({ el: g, tag: n.tag, node: n });
+    });
+
+    var state = { nodes: graph.nodes, edges: graph.edges, maxWeight: graph.maxWeight, width: width, height: height, alpha: 1 };
+
+    function frame(){
+      tickSimulation(state);
+
+      edgeEls.forEach(function(item){
+        var a = graph.nodes[item.edge.a], b = graph.nodes[item.edge.b];
+        item.el.setAttribute('x1', a.x.toFixed(1));
+        item.el.setAttribute('y1', a.y.toFixed(1));
+        item.el.setAttribute('x2', b.x.toFixed(1));
+        item.el.setAttribute('y2', b.y.toFixed(1));
+      });
+
+      graphNodeEls.forEach(function(item){
+        item.el.setAttribute('transform', 'translate(' + item.node.x.toFixed(1) + ',' + item.node.y.toFixed(1) + ')');
+      });
+
+      if(state.alpha > 0.01){
+        currentGraphRaf = requestAnimationFrame(frame);
+      }else{
+        currentGraphRaf = null;
+      }
+    }
+
+    if(window.matchMedia('(prefers-reduced-motion: reduce)').matches){
+      for(var iter=0; iter<220 && state.alpha>0.01; iter++){ tickSimulation(state); }
+      edgeEls.forEach(function(item){
+        var a = graph.nodes[item.edge.a], b = graph.nodes[item.edge.b];
+        item.el.setAttribute('x1', a.x.toFixed(1));
+        item.el.setAttribute('y1', a.y.toFixed(1));
+        item.el.setAttribute('x2', b.x.toFixed(1));
+        item.el.setAttribute('y2', b.y.toFixed(1));
+      });
+      graphNodeEls.forEach(function(item){
+        item.el.setAttribute('transform', 'translate(' + item.node.x.toFixed(1) + ',' + item.node.y.toFixed(1) + ')');
+      });
+    }else{
+      currentGraphRaf = requestAnimationFrame(frame);
+    }
+  }
+
+  function debounce(fn, wait){
+    var t;
+    return function(){
+      clearTimeout(t);
+      var args = arguments;
+      t = setTimeout(function(){ fn.apply(null, args); }, wait);
+    };
+  }
+
+  window.addEventListener('resize', debounce(function(){
+    if(document.getElementById('view-explore').classList.contains('active')){
+      renderTagGraph();
+    }
+  }, 300));
+
+  function renderDreamList(){
+    var container = document.getElementById('dream-list');
+    var search = document.getElementById('search-input').value.trim().toLowerCase();
+
+    var list = dreams.slice().sort(function(a,b){
+      return b.date.localeCompare(a.date) || b.id.localeCompare(a.id);
+    });
+
+    if(activeFilterTag) list = list.filter(function(d){ return (d.tags||[]).indexOf(activeFilterTag) !== -1; });
+    if(search) list = list.filter(function(d){ return d.description.toLowerCase().indexOf(search) !== -1; });
+
+    var filterBanner = document.getElementById('active-filter');
+    if(activeFilterTag){
+      filterBanner.style.display = 'flex';
+      document.getElementById('active-filter-tag').textContent = activeFilterTag;
+    }else{
+      filterBanner.style.display = 'none';
+    }
+
+    container.innerHTML = '';
+    if(list.length === 0){
+      container.innerHTML = '<p class="empty-note">Aucun rêve ne correspond à cette recherche</p>';
+      return;
+    }
+
+    list.forEach(function(dream){
+      var card = document.createElement('div');
+      card.className = 'paper dream-card';
+      var tagsHtml = (dream.tags||[]).map(function(t){ return '<span class="mini-chip">' + escapeHtml(t) + '</span>'; }).join('');
+      card.innerHTML =
+        '<div class="dream-card-header">' +
+          '<span class="dream-date">' + formatDate(dream.date) + '</span>' +
+          '<button class="delete-btn" aria-label="Supprimer ce rêve">' +
+            '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>' +
+          '</button>' +
+        '</div>' +
+        '<p class="dream-desc">' + escapeHtml(dream.description) + '</p>' +
+        '<div class="dream-tags">' + tagsHtml + '</div>';
+
+      card.querySelector('.delete-btn').addEventListener('click', async function(evt){
+        evt.stopPropagation();
+        var ok = await customConfirm("Supprimer ce rêve définitivement ?");
+        if(!ok) return;
+        dreams = dreams.filter(function(d){ return d.id !== dream.id; });
+        await persistDreams();
+        renderExplore();
+        renderHome();
+        showToast("Rêve supprimé");
+      });
+
+      card.addEventListener('click', function(evt){
+        if(evt.target.closest('.delete-btn')) return;
+        card.classList.toggle('expanded');
+      });
+
+      container.appendChild(card);
+    });
+  }
+
+  function renderExplore(){
+    renderTagGraph();
+    renderDreamList();
+  }
+
+  document.getElementById('search-input').addEventListener('input', renderDreamList);
+  document.getElementById('clear-filter-btn').addEventListener('click', function(){
+    activeFilterTag = null;
+    updateGraphActiveState();
+    renderDreamList();
+  });
+
+  /* ===================== EXPORT / IMPORT ===================== */
+  document.getElementById('export-btn').addEventListener('click', function(){
+    var blob = new Blob([JSON.stringify(dreams, null, 2)], {type:'application/json'});
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = 'journal-de-reves-' + todayLocalISO() + '.json';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+    showToast("Export lancé");
+  });
+
+  function triggerImport(){ document.getElementById('import-input').click(); }
+  document.querySelector('label[for="import-input"]').addEventListener('keydown', function(e){
+    if(e.key === 'Enter' || e.key === ' '){
+      e.preventDefault();
+      triggerImport();
+    }
+  });
+
+  document.getElementById('import-input').addEventListener('change', function(e){
+    var file = e.target.files[0];
+    if(!file) return;
+    var reader = new FileReader();
+    reader.onload = async function(evt){
+      try{
+        var parsed = JSON.parse(evt.target.result);
+        var incoming = Array.isArray(parsed) ? parsed : (parsed.dreams || []);
+        var existingIds = {};
+        dreams.forEach(function(d){ existingIds[d.id] = true; });
+        var added = 0;
+        incoming.forEach(function(d){
+          if(d && d.date && d.description && !(d.id && existingIds[d.id])){
+            dreams.push({
+              id: d.id || ('d_' + Date.now() + '_' + Math.random().toString(36).slice(2,8)),
+              date: d.date,
+              description: d.description,
+              tags: Array.isArray(d.tags) ? d.tags : []
+            });
+            added++;
+          }
+        });
+        var allTags = {};
+        tags.forEach(function(t){ allTags[t] = true; });
+        incoming.forEach(function(d){ (d.tags||[]).forEach(function(t){ allTags[t] = true; }); });
+        tags = Object.keys(allTags);
+
+        await persistDreams();
+        await persistTags();
+        renderExplore();
+        renderHome();
+        showToast(added + " rêve(s) importé(s)");
+      }catch(err){
+        showToast("Ce fichier n'a pas pu être lu — vérifie qu'il s'agit d'un export JSON du journal");
+      }
+      e.target.value = '';
+    };
+    reader.readAsText(file);
+  });
+
+  /* ===================== NAVIGATION ===================== */
+  document.getElementById('btn-goto-note').addEventListener('click', function(){
+    resetNoteForm();
+    showView('view-note');
+  });
+  document.getElementById('btn-goto-explore').addEventListener('click', function(){
+    activeFilterTag = null;
+    document.getElementById('search-input').value = '';
+    showView('view-explore');
+    renderExplore();
+  });
+  document.querySelectorAll('[data-goto]').forEach(function(btn){
+    btn.addEventListener('click', function(){ showView(btn.dataset.goto); });
+  });
+
+  /* ===================== STARFIELD ===================== */
+  function generateStars(){
+    var container = document.getElementById('stars');
+    var frag = document.createDocumentFragment();
+    for(var i=0;i<70;i++){
+      var star = document.createElement('div');
+      star.className = 'star';
+      star.style.left = (Math.random()*100) + '%';
+      star.style.top = (Math.random()*100) + '%';
+      star.style.animationDelay = (Math.random()*4) + 's';
+      var size = (Math.random()*2+1) + 'px';
+      star.style.width = size;
+      star.style.height = size;
+      frag.appendChild(star);
+    }
+    container.appendChild(frag);
+  }
+
+  /* ===================== INSTALL / PWA ===================== */
+  if('serviceWorker' in navigator){
+    window.addEventListener('load', function(){
+      navigator.serviceWorker.register('sw.js').catch(function(err){ console.error('SW registration failed', err); });
+    });
+  }
+
+  var deferredInstallPrompt = null;
+  var installBtn = document.getElementById('install-btn');
+  var iosOverlay = document.getElementById('ios-install-overlay');
+
+  function isStandalone(){
+    return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+  }
+  function isIOS(){
+    var ua = navigator.userAgent.toLowerCase();
+    var isAppleTouchUA = /iphone|ipad|ipod/.test(ua);
+    var isIpadMasqueradingAsMac = navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1;
+    return isAppleTouchUA || isIpadMasqueradingAsMac;
+  }
+
+  if(!isStandalone()){
+    if(isIOS()){
+      installBtn.style.display = 'flex';
+      installBtn.addEventListener('click', function(){
+        iosOverlay.classList.add('show');
+      });
+      document.getElementById('ios-install-close').addEventListener('click', function(){
+        iosOverlay.classList.remove('show');
+      });
+    }else{
+      window.addEventListener('beforeinstallprompt', function(e){
+        e.preventDefault();
+        deferredInstallPrompt = e;
+        installBtn.style.display = 'flex';
+      });
+      installBtn.addEventListener('click', async function(){
+        if(!deferredInstallPrompt) return;
+        deferredInstallPrompt.prompt();
+        await deferredInstallPrompt.userChoice;
+        deferredInstallPrompt = null;
+        installBtn.style.display = 'none';
+      });
+      window.addEventListener('appinstalled', function(){
+        installBtn.style.display = 'none';
+        showToast('Application installée ✓');
+      });
+    }
+  }
+
+  /* ===================== INIT ===================== */
+  async function init(){
+    generateStars();
+    await loadData();
+    document.getElementById('btn-goto-note').disabled = false;
+    document.getElementById('btn-goto-explore').disabled = false;
+    renderHome();
+  }
+
+  init();
+})();
+</script>
+</body>
+</html>
