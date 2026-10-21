@@ -120,6 +120,11 @@
   }
 </style>
 </head>
+  <script>
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('sw.js');
+}
+</script>
 <body>
 
 <h1>Grille d'observation – Classe virtuelle</h1>
