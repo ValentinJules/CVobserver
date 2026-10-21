@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="fr">
-
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
@@ -11,21 +10,23 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Obs. classe">
 <title>Grille d'observation – Classe virtuelle</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,500;0,60
-
 <style>
   :root{
     --bg:#f5f7fb; --card:#fff; --ink:#1e293b; --muted:#64748b;
     --line:#e2e8f0; --primary:#2563eb; --danger:#dc2626;
+    --teacher:#7c3aed;
     --radius:14px; --shadow:0 1px 3px rgba(15,23,42,.07),0 1px 2px rgba(15,23,42,.04);
   }
   *{box-sizing:border-box}
   body{
     margin:0; font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
     background:var(--bg); color:var(--ink); line-height:1.45;
-    padding:24px 16px 80px; max-width:1200px; margin-left:auto; margin-right:auto;
+    padding:
+      calc(24px + env(safe-area-inset-top))
+      calc(16px + env(safe-area-inset-right))
+      calc(80px + env(safe-area-inset-bottom))
+      calc(16px + env(safe-area-inset-left));
+    max-width:1200px; margin-left:auto; margin-right:auto;
   }
   h1{font-size:1.5rem;margin:0 0 4px}
   h2{font-size:1.05rem;margin:0 0 12px;color:var(--ink)}
@@ -42,6 +43,8 @@
 
   .panel{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
     padding:18px;box-shadow:var(--shadow);margin-bottom:20px}
+  .panel.teacher-panel{border-left:4px solid var(--teacher);
+    background:linear-gradient(180deg,#fff 0%,#faf5ff 100%)}
   .session-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
   label{display:block;font-size:.78rem;font-weight:600;color:var(--muted);
     text-transform:uppercase;letter-spacing:.04em;margin-bottom:5px}
@@ -101,12 +104,19 @@
   .type-btn .ico{font-size:1rem}
   .type-btn .cnt{font-weight:700;color:var(--c);font-size:.75rem}
 
+  /* --- section enseignant --- */
+  .teacher-toolbar{display:flex;flex-direction:column;gap:8px;margin-bottom:12px}
+  .teacher-panel #teacherTypes{margin-bottom:8px}
+
   /* --- journal --- */
   .log-list{display:flex;flex-direction:column;gap:6px;max-height:360px;overflow-y:auto}
   .log-item{display:flex;align-items:center;gap:8px;padding:7px 10px;background:#f8fafc;
     border-radius:8px;font-size:.85rem;flex-wrap:wrap}
+  .log-item.teacher{background:#faf5ff;border:1px solid #e9d5ff}
   .log-time{color:var(--muted);font-variant-numeric:tabular-nums;font-size:.78rem;min-width:62px}
   .log-badge{font-size:.7rem;font-weight:600;padding:2px 8px;border-radius:999px;white-space:nowrap}
+  .role-badge{font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;
+    background:var(--teacher);color:#fff;padding:1px 6px;border-radius:4px}
   .log-q{font-size:.7rem;font-weight:700;padding:2px 7px;border-radius:999px;white-space:nowrap}
   .log-q.q1{background:#fef2f2;color:#dc2626}
   .log-q.q2{background:#fff7ed;color:#ea580c}
@@ -120,15 +130,10 @@
   }
 </style>
 </head>
-  <script>
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('sw.js');
-}
-</script>
 <body>
 
 <h1>Grille d'observation – Classe virtuelle</h1>
-<p class="subtitle">Choisissez le niveau cognitif et la qualité de l'intervention, puis cliquez sur un type de participation pour l'enregistrer.</p>
+<p class="subtitle">Cochez le niveau cognitif et la qualité, puis cliquez sur un type de participation pour l'enregistrer — élèves et enseignant·e sont observés séparément.</p>
 
 <div class="toolbar">
   <button id="btnUndo">↩ Annuler le dernier</button>
@@ -169,6 +174,28 @@ if ('serviceWorker' in navigator) {
 
 <section id="studentsGrid" class="students-grid"></section>
 
+<!-- =====================================================
+     SECTION ENSEIGNANT·E
+     ===================================================== -->
+<section class="panel teacher-panel">
+  <h2>Interventions de l'enseignant·e</h2>
+  <div class="teacher-toolbar">
+    <div class="quality-row">
+      <span class="quality-label">Qualité</span>
+      <div class="quality-buttons" id="teacherQualityBtns">
+        <button class="qbtn" data-q="1" title="1 – Faible">1</button>
+        <button class="qbtn" data-q="2" title="2 – Passable">2</button>
+        <button class="qbtn" data-q="3" title="3 – Correcte">3</button>
+        <button class="qbtn" data-q="4" title="4 – Bonne">4</button>
+        <button class="qbtn" data-q="5" title="5 – Excellente">5</button>
+      </div>
+    </div>
+    <input type="text" id="inTeacherTarget" placeholder="Destinataire (optionnel) : classe entière, groupe, élève…">
+  </div>
+  <div class="q-legend" style="margin-bottom:8px;">1 Faible · 2 Passable · 3 Correcte · 4 Bonne · 5 Excellente</div>
+  <div class="types" id="teacherTypes"></div>
+</section>
+
 <section class="panel">
   <h2>Journal des observations</h2>
   <div id="logList" class="log-list"></div>
@@ -194,29 +221,45 @@ const TYPES = {
   collab:  { label:'Collaboration',   icon:'👥', color:'#16a34a' }
 };
 
-const LEVELS = {
-  1:'Restitution', 2:'Reformulation', 3:'Analyse', 4:'Création/transfert'
+const TEACHER_TYPES = {
+  consigne:     { label:'Consigne',       icon:'📋', color:'#2563eb' },
+  feedback:     { label:'Feedback',       icon:'💬', color:'#0891b2' },
+  question:     { label:'Question posée', icon:'❓', color:'#ea580c' },
+  reformulation:{ label:'Reformulation',  icon:'🔄', color:'#7c3aed' },
+  etayage:      { label:'Étayage',        icon:'🪜', color:'#16a34a' },
+  socio:        { label:'Socio-affectif', icon:'🤝', color:'#db2777' }
 };
 
-const QUALITY = {
-  1:'Faible', 2:'Passable', 3:'Correcte', 4:'Bonne', 5:'Excellente'
-};
+const LEVELS = { 1:'Restitution', 2:'Reformulation', 3:'Analyse', 4:'Création/transfert' };
+const QUALITY = { 1:'Faible', 2:'Passable', 3:'Correcte', 4:'Bonne', 5:'Excellente' };
 
 /* =========================================================
    ÉTAT + MIGRATION
    ========================================================= */
 function todayISO(){ return new Date().toISOString().slice(0,10); }
 function emptyCounts(){ return { oral:0, chat:0, sondage:0, question:0, socio:0, collab:0 }; }
+function emptyTeacherCounts(){
+  return { consigne:0, feedback:0, question:0, reformulation:0, etayage:0, socio:0 };
+}
 
 let state = loadState() || {
   session: { cours:'', scenario:'', date:todayISO(), observateur:'', notes:'' },
   students: [],
-  entries: []
+  entries: [],
+  teacherEntries: [],
+  teacherCounts: emptyTeacherCounts(),
+  teacherQuality: 3,
+  teacherTarget: ''
 };
 
-/* Migration : garantir quality sur élèves et entrées existantes */
+/* Migration — champs manquants (versions antérieures) */
 state.students.forEach(s => { if (s.quality === undefined) s.quality = 3; });
 state.entries.forEach(e => { if (e.quality === undefined) e.quality = 3; });
+state.teacherEntries = state.teacherEntries || [];
+state.teacherCounts = Object.assign(emptyTeacherCounts(), state.teacherCounts || {});
+state.teacherQuality = state.teacherQuality ?? 3;
+state.teacherTarget = state.teacherTarget || '';
+state.session.observateur = state.session.observateur || state.session.obs || '';
 
 function saveState(){
   try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch(e){}
@@ -258,6 +301,7 @@ function renderSession(){
   notes.value = state.session.notes || '';
 }
 
+/* Mapping explicite id → clé d'état (corrige le bug inObs → obs) */
 const SESSION_KEYS = { inCours:'cours', inScenario:'scenario', inDate:'date', inObs:'observateur' };
 Object.keys(SESSION_KEYS).forEach(id => {
   const el = document.getElementById(id);
@@ -269,7 +313,7 @@ Object.keys(SESSION_KEYS).forEach(id => {
 notes.addEventListener('input', () => { state.session.notes = notes.value; saveState(); });
 
 /* =========================================================
-   RENDU ÉLÈVES (avec qualité)
+   RENDU ÉLÈVES
    ========================================================= */
 const grid = document.getElementById('studentsGrid');
 
@@ -316,7 +360,6 @@ function renderStudents(){
   }).join('');
 }
 
-/* --- délégation d'événements --- */
 grid.addEventListener('click', (e) => {
   const typeBtn = e.target.closest('.type-btn');
   if (typeBtn) return addParticipation(typeBtn.dataset.id, typeBtn.dataset.type);
@@ -347,6 +390,50 @@ grid.addEventListener('input', (e) => {
 });
 
 /* =========================================================
+   RENDU ENSEIGNANT·E
+   ========================================================= */
+const teacherTypesEl = document.getElementById('teacherTypes');
+const teacherQualityEl = document.getElementById('teacherQualityBtns');
+const inTeacherTarget = document.getElementById('inTeacherTarget');
+
+function renderTeacher(){
+  teacherTypesEl.innerHTML = Object.entries(TEACHER_TYPES).map(([key,t]) => `
+    <button class="type-btn" data-type="${key}" style="--c:${t.color}">
+      <span class="ico">${t.icon}</span>
+      <span class="lbl">${t.label}</span>
+      <span class="cnt">${state.teacherCounts[key] || 0}</span>
+    </button>
+  `).join('');
+
+  teacherQualityEl.querySelectorAll('.qbtn').forEach(b => {
+    b.classList.toggle('active', Number(b.dataset.q) === state.teacherQuality);
+  });
+
+  if (document.activeElement !== inTeacherTarget) {
+    inTeacherTarget.value = state.teacherTarget || '';
+  }
+}
+
+teacherQualityEl.addEventListener('click', e => {
+  const btn = e.target.closest('.qbtn');
+  if (!btn) return;
+  state.teacherQuality = Number(btn.dataset.q);
+  saveState();
+  renderTeacher();
+});
+
+teacherTypesEl.addEventListener('click', e => {
+  const btn = e.target.closest('.type-btn');
+  if (!btn) return;
+  addTeacherIntervention(btn.dataset.type);
+});
+
+inTeacherTarget.addEventListener('input', () => {
+  state.teacherTarget = inTeacherTarget.value;
+  saveState();
+});
+
+/* =========================================================
    ACTIONS
    ========================================================= */
 const inStudent = document.getElementById('inStudent');
@@ -359,8 +446,7 @@ function addStudents(){
   if (!raw) return;
   raw.split(',').map(n => n.trim()).filter(Boolean).forEach(name => {
     state.students.push({
-      id: uid(),
-      name,
+      id: uid(), name,
       counts: emptyCounts(),
       currentLevel: 1,
       quality: 3
@@ -383,9 +469,9 @@ function addParticipation(studentId, type){
   if (!s) return;
   s.counts[type]++;
   state.entries.push({
+    role: 'student',
     time: new Date().toISOString(),
-    studentId,
-    studentName: s.name,
+    studentId, studentName: s.name,
     type,
     level: s.currentLevel,
     quality: s.quality
@@ -393,36 +479,79 @@ function addParticipation(studentId, type){
   saveState(); renderStudents(); renderLog();
 }
 
+function addTeacherIntervention(type){
+  state.teacherCounts[type] = (state.teacherCounts[type] || 0) + 1;
+  state.teacherEntries.push({
+    role: 'teacher',
+    time: new Date().toISOString(),
+    type,
+    quality: state.teacherQuality,
+    target: (state.teacherTarget || '').trim()
+  });
+  saveState(); renderTeacher(); renderLog();
+}
+
+/* --- Annuler la dernière observation (élève OU enseignant) --- */
 document.getElementById('btnUndo').addEventListener('click', () => {
-  const last = state.entries.pop();
-  if (!last) return;
-  const s = state.students.find(x => x.id === last.studentId);
-  if (s && s.counts[last.type] > 0) s.counts[last.type]--;
-  saveState(); renderStudents(); renderLog();
+  const lastS = state.entries[state.entries.length - 1];
+  const lastT = state.teacherEntries[state.teacherEntries.length - 1];
+  if (!lastS && !lastT) return;
+
+  const undoT =
+    lastT && (!lastS || new Date(lastT.time) >= new Date(lastS.time));
+
+  if (undoT){
+    const e = state.teacherEntries.pop();
+    if (state.teacherCounts[e.type] > 0) state.teacherCounts[e.type]--;
+  } else {
+    const e = state.entries.pop();
+    const s = state.students.find(x => x.id === e.studentId);
+    if (s && s.counts[e.type] > 0) s.counts[e.type]--;
+  }
+  saveState(); renderStudents(); renderTeacher(); renderLog();
 });
 
 document.getElementById('btnReset').addEventListener('click', () => {
-  if (!confirm('Réinitialiser toute la session (élèves, participations, notes) ?')) return;
+  if (!confirm('Réinitialiser toute la session (élèves, enseignant, participations, notes) ?')) return;
   state = {
     session: { cours:'', scenario:'', date:todayISO(), observateur:'', notes:'' },
-    students: [], entries: []
+    students: [], entries: [],
+    teacherEntries: [], teacherCounts: emptyTeacherCounts(),
+    teacherQuality: 3, teacherTarget: ''
   };
   localStorage.removeItem(STORAGE_KEY);
-  renderSession(); renderStudents(); renderLog();
+  renderSession(); renderStudents(); renderTeacher(); renderLog();
 });
 
 /* =========================================================
-   JOURNAL
+   JOURNAL (fusion élèves + enseignant)
    ========================================================= */
 const logList = document.getElementById('logList');
 
 function renderLog(){
-  if (state.entries.length === 0){
+  const all = [
+    ...state.entries.map(e => ({ ...e, role:'student' })),
+    ...state.teacherEntries.map(e => ({ ...e, role:'teacher' }))
+  ].sort((a,b) => new Date(b.time) - new Date(a.time)).slice(0, 40);
+
+  if (all.length === 0){
     logList.innerHTML = '<p class="log-empty">Aucune observation enregistrée.</p>';
     return;
   }
-  const recent = [...state.entries].slice(-40).reverse();
-  logList.innerHTML = recent.map(e => {
+
+  logList.innerHTML = all.map(e => {
+    if (e.role === 'teacher'){
+      const t = TEACHER_TYPES[e.type];
+      return `<div class="log-item teacher">
+        <span class="log-time">${fmtTime(e.time)}</span>
+        <span class="role-badge">Prof</span>
+        <span class="log-badge" style="background:${t.color}1a;color:${t.color}">
+          ${t.icon} ${t.label}
+        </span>
+        ${e.target ? `<span style="color:var(--muted);font-size:.78rem">→ ${escapeHtml(e.target)}</span>` : ''}
+        <span class="log-q q${e.quality}">Q${e.quality} · ${QUALITY[e.quality]}</span>
+      </div>`;
+    }
     const t = TYPES[e.type];
     return `<div class="log-item">
       <span class="log-time">${fmtTime(e.time)}</span>
@@ -431,7 +560,7 @@ function renderLog(){
         ${t.icon} ${t.label}
       </span>
       <span style="color:var(--muted);font-size:.78rem">Niv. ${e.level} · ${LEVELS[e.level]}</span>
-      <span class="log-q q${e.quality}" title="${QUALITY[e.quality]}">Q${e.quality} · ${QUALITY[e.quality]}</span>
+      <span class="log-q q${e.quality}">Q${e.quality} · ${QUALITY[e.quality]}</span>
     </div>`;
   }).join('');
 }
@@ -453,63 +582,79 @@ function csvEscape(v){
   return /[;"\n]/.test(s) ? '"' + s.replace(/"/g,'""') + '"' : s;
 }
 
-/* --- Export détaillé : une ligne par observation --- */
+/* --- Export détail : une ligne par observation (élèves + prof) --- */
 document.getElementById('btnExportCsv').addEventListener('click', () => {
-  const header = ['Date','Heure','Cours','Scénario','Élève',
-                  'Type de participation','Niveau cognitif','Qualité (1-5)'];
-  const rows = state.entries.map(e => {
+  const header = ['Date','Heure','Cours','Scénario','Rôle','Acteur',
+                  'Type','Niveau cognitif','Qualité (1-5)','Destinataire'];
+
+  const studentRows = state.entries.map(e => {
     const d = new Date(e.time);
     return [
-      d.toLocaleDateString('fr-FR'),
-      d.toLocaleTimeString('fr-FR'),
-      state.session.cours,
-      state.session.scenario,
-      e.studentName,
-      TYPES[e.type].label,
+      d.toLocaleDateString('fr-FR'), d.toLocaleTimeString('fr-FR'),
+      state.session.cours, state.session.scenario,
+      'Élève', e.studentName, TYPES[e.type].label,
       e.level + ' - ' + LEVELS[e.level],
-      e.quality + ' - ' + QUALITY[e.quality]
+      e.quality + ' - ' + QUALITY[e.quality],
+      ''
     ];
   });
+
+  const teacherRows = state.teacherEntries.map(e => {
+    const d = new Date(e.time);
+    return [
+      d.toLocaleDateString('fr-FR'), d.toLocaleTimeString('fr-FR'),
+      state.session.cours, state.session.scenario,
+      'Enseignant·e', 'Enseignant·e', TEACHER_TYPES[e.type].label,
+      '',
+      e.quality + ' - ' + QUALITY[e.quality],
+      e.target || ''
+    ];
+  });
+
+  const rows = [...studentRows, ...teacherRows].sort((a,b) =>
+    (a[0] + ' ' + a[1]).localeCompare(b[0] + ' ' + b[1]));
+
   const csv = [header, ...rows].map(r => r.map(csvEscape).join(';')).join('\n');
   download('\uFEFF' + csv, `observations_${state.session.date || todayISO()}.csv`,
            'text/csv;charset=utf-8');
 });
 
-/* --- Export synthèse : moyenne de qualité par élève, distribution par type --- */
+/* --- Export synthèse : élèves + bloc enseignant séparé --- */
 document.getElementById('btnExportSummary').addEventListener('click', () => {
   const header = ['Élève',
                   ...Object.values(TYPES).map(t => t.label),
-                  'Total',
-                  'Qualité moyenne',
-                  'Niveau moyen'];
+                  'Total', 'Qualité moyenne', 'Niveau moyen'];
 
   const rows = state.students.map(s => {
     const own = state.entries.filter(e => e.studentId === s.id);
     const total = Object.values(s.counts).reduce((a,b)=>a+b,0);
     const avgQ = own.length ? (own.reduce((a,e)=>a+e.quality,0) / own.length).toFixed(2) : '—';
     const avgL = own.length ? (own.reduce((a,e)=>a+e.level,0) / own.length).toFixed(2) : '—';
-    return [
-      s.name,
-      ...Object.keys(TYPES).map(k => s.counts[k]),
-      total,
-      avgQ,
-      avgL
-    ];
+    return [s.name, ...Object.keys(TYPES).map(k => s.counts[k]), total, avgQ, avgL];
   });
 
-  /* Ligne de synthèse par type : qualité moyenne de toutes les observations du type */
-  const perType = Object.keys(TYPES).map(k => {
+  const perTypeStudents = Object.keys(TYPES).map(k => {
     const own = state.entries.filter(e => e.type === k);
     const avgQ = own.length ? (own.reduce((a,e)=>a+e.quality,0) / own.length).toFixed(2) : '—';
-    return [TYPES[k].label + ' — qualité moy.', own.length, avgQ];
+    return [TYPES[k].label, own.length, avgQ];
   });
+
+  const perTypeTeacher = Object.keys(TEACHER_TYPES).map(k => {
+    const own = state.teacherEntries.filter(e => e.type === k);
+    const avgQ = own.length ? (own.reduce((a,e)=>a+e.quality,0) / own.length).toFixed(2) : '—';
+    return [TEACHER_TYPES[k].label, own.length, avgQ];
+  });
+  const avgQteacher = state.teacherEntries.length
+    ? (state.teacherEntries.reduce((a,e)=>a+e.quality,0) / state.teacherEntries.length).toFixed(2)
+    : '—';
 
   const meta = [
     ['Cours', state.session.cours],
     ['Scénario', state.session.scenario],
     ['Date', state.session.date],
     ['Observateur·rice', state.session.observateur],
-    ['Nb observations', state.entries.length],
+    ['Nb observations élèves', state.entries.length],
+    ['Nb interventions enseignant', state.teacherEntries.length],
     []
   ];
 
@@ -518,9 +663,15 @@ document.getElementById('btnExportSummary').addEventListener('click', () => {
     header.map(csvEscape).join(';'),
     ...rows.map(r => r.map(csvEscape).join(';')),
     '',
-    'Synthèse par type de participation',
+    'Synthèse par type de participation (élèves)',
     ['Type','Nb observations','Qualité moyenne'].map(csvEscape).join(';'),
-    ...perType.map(r => r.map(csvEscape).join(';'))
+    ...perTypeStudents.map(r => r.map(csvEscape).join(';')),
+    '',
+    'Synthèse interventions enseignant·e',
+    ['Type','Nb observations','Qualité moyenne'].map(csvEscape).join(';'),
+    ...perTypeTeacher.map(r => r.map(csvEscape).join(';')),
+    ['Qualité moyenne enseignant·e', state.teacherEntries.length, avgQteacher]
+      .map(csvEscape).join(';')
   ];
 
   download('\uFEFF' + lines.join('\n'),
@@ -538,6 +689,7 @@ document.getElementById('btnExportJson').addEventListener('click', () => {
    ========================================================= */
 renderSession();
 renderStudents();
+renderTeacher();
 renderLog();
 </script>
 </body>
