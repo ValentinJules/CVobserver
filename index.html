@@ -31,23 +31,7 @@
   h1{font-size:1.5rem;margin:0 0 4px}
   h2{font-size:1.05rem;margin:0 0 12px;color:var(--ink)}
   .subtitle{color:var(--muted);font-size:.9rem;margin:0 0 20px}
-    /* Bouton d'installation PWA (masqué par défaut, affiché par JS) */
-    .install-btn {
-      display: none;
-      margin: 0.3rem auto 0;
-      background: var(--gold);
-      color: var(--brown-dark);
-      border: none;
-      border-radius: 20px;
-      padding: 0.5rem 1.3rem;
-      font-family: 'Lato', sans-serif;
-      font-size: 0.78rem;
-      font-weight: 700;
-      letter-spacing: 0.08rem;
-      cursor: pointer;
-      transition: background 0.2s;
-    }
-    .install-btn:active { background: var(--gold-light); }
+
   .toolbar{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px}
   button{font:inherit;cursor:pointer;border-radius:10px;border:1px solid var(--line);
     background:#fff;color:var(--ink);padding:9px 14px;transition:.15s}
@@ -69,6 +53,33 @@
     box-shadow:0 0 0 3px rgba(37,99,235,.12)}
   textarea{resize:vertical;min-height:90px}
 
+  /* --- scénarios en cases à cocher --- */
+  .scenario-group{margin-top:14px}
+  .scenario-group > label{
+    display:block;font-size:.78rem;font-weight:600;color:var(--muted);
+    text-transform:uppercase;letter-spacing:.04em;margin-bottom:8px;
+  }
+  .scenario-checkboxes{
+    display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));
+    gap:6px;
+  }
+  .scenario-option{
+    display:flex;align-items:center;gap:8px;
+    padding:8px 11px;border:1px solid var(--line);border-radius:9px;
+    background:#fff;cursor:pointer;font-size:.88rem;
+    transition:.15s;user-select:none;
+  }
+  .scenario-option:hover{border-color:#cbd5e1;background:#f8fafc}
+  .scenario-option input[type=checkbox]{
+    margin:0;width:16px;height:16px;cursor:pointer;
+    accent-color:var(--primary);
+  }
+  .scenario-option.checked{
+    background:#eff6ff;border-color:#93c5fd;
+  }
+  .scenario-option.checked span{font-weight:600;color:#1d4ed8}
+
+  /* --- chrono --- */
   .timer-bar{
     display:flex;align-items:center;gap:10px;flex-wrap:wrap;
     margin-top:14px;padding:10px 12px;background:#f8fafc;
@@ -87,8 +98,18 @@
     font-size:.85rem;color:var(--muted);
   }
 
+  /* --- ajout élèves + répertoire --- */
   .add-row{display:flex;gap:10px;flex-wrap:wrap}
   .add-row input{flex:1;min-width:180px}
+  .roster-bar{
+    display:flex;align-items:center;gap:8px;flex-wrap:wrap;
+    margin-top:12px;padding:10px 12px;
+    background:#f8fafc;border:1px solid var(--line);border-radius:10px;
+    font-size:.85rem;
+  }
+  .roster-info{flex:1;color:var(--muted);min-width:150px}
+  .roster-info strong{color:var(--ink)}
+  .roster-bar button{padding:6px 11px;font-size:.8rem}
 
   .students-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(360px,1fr));gap:14px}
   .empty{color:var(--muted);font-style:italic;text-align:center;padding:20px}
@@ -148,8 +169,7 @@
   .teacher-options{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
   .teacher-options label{display:inline;margin:0;text-transform:none;font-size:.8rem;color:var(--ink);font-weight:500}
   .teacher-options input[type=number]{width:70px;padding:5px 8px;font-size:.85rem}
-  .teacher-panel #teacherTypes{margin-bottom:12px}
-  .teacher-panel #teacherTypes{grid-template-columns:repeat(4,1fr)}
+  .teacher-panel #teacherTypes{margin-bottom:12px;grid-template-columns:repeat(4,1fr)}
 
   .last-intervention{
     margin-top:14px;padding:12px;
@@ -227,6 +247,7 @@
   @media(max-width:480px){
     .types{grid-template-columns:repeat(2,1fr)}
     .log-item.triggered{margin-left:12px}
+    .scenario-checkboxes{grid-template-columns:1fr}
   }
 </style>
 </head>
@@ -248,15 +269,16 @@
   <div class="session-grid">
     <div><label for="inCours">Cours suivi</label>
       <input type="text" id="inCours" placeholder="ex. Mathématiques – 2de"></div>
-    <div><label for="inScenario">Scénario pédagogique observé</label>
-      <input type="text" id="inScenario"
-             placeholder="ex. Magistral interactif, classe inversée, tutorat…"></div>
     <div><label for="inDate">Date du cours</label>
       <input type="date" id="inDate"></div>
     <div><label for="inHeureDebut">Heure de début du cours</label>
       <input type="time" id="inHeureDebut" step="1"></div>
     <div><label for="inObs">Observateur·rice</label>
       <input type="text" id="inObs" placeholder="Votre nom"></div>
+  </div>
+  <div class="scenario-group">
+    <label>Scénarios pédagogiques observés (plusieurs choix possibles)</label>
+    <div class="scenario-checkboxes" id="scenarioCheckboxes"></div>
   </div>
   <div class="timer-bar">
     <button class="primary" id="btnStartTimer">▶ Démarrer</button>
@@ -267,7 +289,7 @@
 </section>
 
 <!-- =====================================================
-     SECTION ENSEIGNANT·E (désormais AVANT les élèves)
+     SECTION ENSEIGNANT·E
      ===================================================== -->
 <section class="panel teacher-panel">
   <h2>🧑‍🏫 Interventions de l'enseignant·e</h2>
@@ -308,6 +330,11 @@
     <input type="text" id="inStudent" placeholder="Nom de l'élève (ou plusieurs séparés par des virgules)">
     <button class="primary" id="btnAddStudent">+ Ajouter</button>
   </div>
+  <div class="roster-bar">
+    <span class="roster-info" id="rosterInfo">Répertoire : <strong>0</strong> élève</span>
+    <button id="btnLoadRoster" title="Ajouter tous les élèves du répertoire à la session">↻ Charger le répertoire</button>
+    <button class="danger" id="btnClearRoster" title="Vider le répertoire persistant">🗑 Vider le répertoire</button>
+  </div>
 </section>
 
 <section id="studentsGrid" class="students-grid"></section>
@@ -327,6 +354,18 @@
    CONFIGURATION
    ========================================================= */
 const STORAGE_KEY = 'obs-classe-virtuelle-v1';
+const ROSTER_KEY  = 'obs-classe-virtuelle-roster-v1';
+
+const SCENARIOS = [
+  'Magistral interactif',
+  'Classe inversée',
+  'Tutorat de groupe',
+  'Atelier collaboratif',
+  'Séminaire / discussion',
+  'Apprentissage par projet',
+  'Jeu sérieux / gamification',
+  'Résolution de problèmes'
+];
 
 const TYPES = {
   oral:    { label:'Prise de parole', icon:'🎤', color:'#2563eb' },
@@ -362,7 +401,7 @@ function pad(n){ return String(n).padStart(2,'0'); }
 
 let state = loadState() || {
   session: {
-    cours:'', scenario:'', date:todayISO(), heureDebut:'', observateur:'', notes:'',
+    cours:'', scenarios:[], date:todayISO(), heureDebut:'', observateur:'', notes:'',
     timerRunning:false, timerElapsedBase:0, timerLastStart:null,
     reactionWindow:30
   },
@@ -382,6 +421,19 @@ state.session.timerElapsedBase = state.session.timerElapsedBase ?? 0;
 state.session.timerLastStart = state.session.timerLastStart ?? null;
 state.session.observateur = state.session.observateur || state.session.obs || '';
 
+/* Migration scenario → scenarios */
+if (!Array.isArray(state.session.scenarios)) {
+  state.session.scenarios = [];
+  const old = state.session.scenario;
+  if (typeof old === 'string' && old.trim()){
+    SCENARIOS.forEach(s => {
+      if (old.toLowerCase().includes(s.toLowerCase())){
+        state.session.scenarios.push(s);
+      }
+    });
+  }
+}
+
 state.students.forEach(s => { if (s.quality === undefined) s.quality = 3; });
 state.entries.forEach(e => {
   if (e.quality === undefined) e.quality = 3;
@@ -396,6 +448,23 @@ state.teacherEntries.forEach(e => {
 state.teacherCounts = Object.assign(emptyTeacherCounts(), state.teacherCounts || {});
 state.teacherQuality = state.teacherQuality ?? 3;
 state.teacherTarget = state.teacherTarget || '';
+
+/* --- répertoire persistant --- */
+let roster = loadRoster();
+function loadRoster(){
+  try {
+    const raw = localStorage.getItem(ROSTER_KEY);
+    const arr = raw ? JSON.parse(raw) : [];
+    return Array.isArray(arr) ? arr.filter(n => typeof n === 'string') : [];
+  } catch(e){ return []; }
+}
+function saveRoster(){
+  try { localStorage.setItem(ROSTER_KEY, JSON.stringify(roster)); } catch(e){}
+}
+function addToRoster(name){
+  const exists = roster.some(n => n.toLowerCase() === name.toLowerCase());
+  if (!exists){ roster.push(name); saveRoster(); }
+}
 
 function saveState(){
   try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch(e){}
@@ -482,7 +551,6 @@ function updateTimerDisplay(){
    SESSION
    ========================================================= */
 const inCours = document.getElementById('inCours');
-const inScenario = document.getElementById('inScenario');
 const inDate = document.getElementById('inDate');
 const inHeureDebut = document.getElementById('inHeureDebut');
 const inObs = document.getElementById('inObs');
@@ -490,15 +558,15 @@ const notes = document.getElementById('notes');
 
 function renderSession(){
   inCours.value = state.session.cours || '';
-  inScenario.value = state.session.scenario || '';
   inDate.value = state.session.date || todayISO();
   inHeureDebut.value = state.session.heureDebut || '';
   inObs.value = state.session.observateur || '';
   notes.value = state.session.notes || '';
+  renderScenarioCheckboxes();
 }
 
 const SESSION_KEYS = {
-  inCours:'cours', inScenario:'scenario', inDate:'date',
+  inCours:'cours', inDate:'date',
   inHeureDebut:'heureDebut', inObs:'observateur'
 };
 Object.keys(SESSION_KEYS).forEach(id => {
@@ -509,11 +577,42 @@ Object.keys(SESSION_KEYS).forEach(id => {
   });
 });
 inHeureDebut.addEventListener('change', () => { updateTimerDisplay(); renderLog(); });
-inObs.addEventListener('input', () => {
-  state.session.observateur = inObs.value; saveState();
-});
 notes.addEventListener('input', () => { state.session.notes = notes.value; saveState(); });
 
+/* --- scénarios --- */
+const scenarioCheckboxesEl = document.getElementById('scenarioCheckboxes');
+
+function renderScenarioCheckboxes(){
+  const selected = state.session.scenarios || [];
+  scenarioCheckboxesEl.innerHTML = SCENARIOS.map(name => {
+    const checked = selected.includes(name);
+    return `
+      <label class="scenario-option ${checked ? 'checked' : ''}">
+        <input type="checkbox" value="${escapeHtml(name)}" ${checked ? 'checked' : ''}>
+        <span>${escapeHtml(name)}</span>
+      </label>
+    `;
+  }).join('');
+}
+
+scenarioCheckboxesEl.addEventListener('change', (e) => {
+  if (e.target.type !== 'checkbox') return;
+  const value = e.target.value;
+  const arr = state.session.scenarios || [];
+  const idx = arr.indexOf(value);
+  if (e.target.checked){
+    if (idx === -1) arr.push(value);
+  } else {
+    if (idx !== -1) arr.splice(idx, 1);
+  }
+  state.session.scenarios = arr;
+  saveState();
+  renderScenarioCheckboxes();
+});
+
+/* =========================================================
+   CHRONO — boutons
+   ========================================================= */
 document.getElementById('btnStartTimer').addEventListener('click', () => {
   if (state.session.timerRunning){
     state.session.timerElapsedBase = getElapsed();
@@ -548,44 +647,45 @@ const grid = document.getElementById('studentsGrid');
 function renderStudents(){
   if (state.students.length === 0){
     grid.innerHTML = '<p class="empty">Aucun élève pour le moment. Ajoutez-en ci-dessus.</p>';
-    return;
-  }
-  grid.innerHTML = state.students.map(s => {
-    const total = Object.values(s.counts).reduce((a,b)=>a+b,0);
-    return `
-      <div class="student-card" data-id="${s.id}">
-        <div class="student-header">
-          <input class="student-name" data-id="${s.id}" value="${escapeHtml(s.name)}" aria-label="Nom de l'élève">
-          <span class="total" title="Total de participations">${total}</span>
-          <button class="btn-remove" data-id="${s.id}" title="Retirer cet élève">✕</button>
-        </div>
-        <div class="levels" title="Niveau cognitif">
-          ${Object.entries(LEVELS).map(([lvl,label]) => `
-            <button class="lvl ${s.currentLevel === Number(lvl) ? 'active' : ''}"
-                    data-id="${s.id}" data-level="${lvl}">
-              ${lvl} · ${label}
-            </button>`).join('')}
-        </div>
-        <div class="quality-row" title="Qualité de l'intervention">
-          <span class="quality-label">Qualité</span>
-          <div class="quality-buttons">
-            ${[1,2,3,4,5].map(q => `
-              <button class="qbtn ${s.quality === q ? 'active' : ''}"
-                      data-id="${s.id}" data-q="${q}" title="${q} – ${QUALITY[q]}">${q}</button>
-            `).join('')}
+  } else {
+    grid.innerHTML = state.students.map(s => {
+      const total = Object.values(s.counts).reduce((a,b)=>a+b,0);
+      return `
+        <div class="student-card" data-id="${s.id}">
+          <div class="student-header">
+            <input class="student-name" data-id="${s.id}" value="${escapeHtml(s.name)}" aria-label="Nom de l'élève">
+            <span class="total" title="Total de participations">${total}</span>
+            <button class="btn-remove" data-id="${s.id}" title="Retirer cet élève de la session">✕</button>
           </div>
-        </div>
-        <div class="q-legend">1 Faible · 2 Passable · 3 Correcte · 4 Bonne · 5 Excellente</div>
-        <div class="types">
-          ${Object.entries(TYPES).map(([key,t]) => `
-            <button class="type-btn" data-id="${s.id}" data-type="${key}" style="--c:${t.color}">
-              <span class="ico">${t.icon}</span>
-              <span class="lbl">${t.label}</span>
-              <span class="cnt">${s.counts[key]}</span>
-            </button>`).join('')}
-        </div>
-      </div>`;
-  }).join('');
+          <div class="levels" title="Niveau cognitif">
+            ${Object.entries(LEVELS).map(([lvl,label]) => `
+              <button class="lvl ${s.currentLevel === Number(lvl) ? 'active' : ''}"
+                      data-id="${s.id}" data-level="${lvl}">
+                ${lvl} · ${label}
+              </button>`).join('')}
+          </div>
+          <div class="quality-row" title="Qualité de l'intervention">
+            <span class="quality-label">Qualité</span>
+            <div class="quality-buttons">
+              ${[1,2,3,4,5].map(q => `
+                <button class="qbtn ${s.quality === q ? 'active' : ''}"
+                        data-id="${s.id}" data-q="${q}" title="${q} – ${QUALITY[q]}">${q}</button>
+              `).join('')}
+            </div>
+          </div>
+          <div class="q-legend">1 Faible · 2 Passable · 3 Correcte · 4 Bonne · 5 Excellente</div>
+          <div class="types">
+            ${Object.entries(TYPES).map(([key,t]) => `
+              <button class="type-btn" data-id="${s.id}" data-type="${key}" style="--c:${t.color}">
+                <span class="ico">${t.icon}</span>
+                <span class="lbl">${t.label}</span>
+                <span class="cnt">${s.counts[key]}</span>
+              </button>`).join('')}
+          </div>
+        </div>`;
+    }).join('');
+  }
+  renderRosterInfo();
 }
 
 grid.addEventListener('click', (e) => {
@@ -613,6 +713,54 @@ grid.addEventListener('input', (e) => {
     const s = state.students.find(x => x.id === e.target.dataset.id);
     if (s){ s.name = e.target.value; saveState(); }
   }
+});
+
+/* =========================================================
+   RÉPERTOIRE
+   ========================================================= */
+function renderRosterInfo(){
+  const info = document.getElementById('rosterInfo');
+  const missing = roster.filter(n =>
+    !state.students.some(s => s.name.toLowerCase() === n.toLowerCase()));
+  const count = roster.length;
+  info.innerHTML = `Répertoire : <strong>${count}</strong> élève${count > 1 ? 's' : ''}` +
+    (missing.length ? ` · ${missing.length} non chargé${missing.length > 1 ? 's' : ''}` : '');
+
+  const btnLoad = document.getElementById('btnLoadRoster');
+  btnLoad.disabled = missing.length === 0;
+  btnLoad.style.opacity = missing.length === 0 ? '.5' : '1';
+  btnLoad.style.cursor = missing.length === 0 ? 'not-allowed' : 'pointer';
+
+  const btnClear = document.getElementById('btnClearRoster');
+  btnClear.disabled = count === 0;
+  btnClear.style.opacity = count === 0 ? '.5' : '1';
+  btnClear.style.cursor = count === 0 ? 'not-allowed' : 'pointer';
+}
+
+document.getElementById('btnLoadRoster').addEventListener('click', () => {
+  const missing = roster.filter(n =>
+    !state.students.some(s => s.name.toLowerCase() === n.toLowerCase()));
+  if (missing.length === 0){
+    alert('Tous les élèves du répertoire sont déjà présents dans la session.');
+    return;
+  }
+  missing.forEach(name => {
+    state.students.push({
+      id: uid(), name,
+      counts: emptyCounts(),
+      currentLevel: 1,
+      quality: 3
+    });
+  });
+  saveState();
+  renderStudents();
+});
+
+document.getElementById('btnClearRoster').addEventListener('click', () => {
+  if (!confirm(`Vider le répertoire persistant (${roster.length} élève${roster.length>1?'s':''}) ?\n\nLes élèves de la session en cours resteront présents.`)) return;
+  roster = [];
+  saveRoster();
+  renderRosterInfo();
 });
 
 /* =========================================================
@@ -714,6 +862,7 @@ function addStudents(){
       currentLevel: 1,
       quality: 3
     });
+    addToRoster(name);
   });
   inStudent.value = '';
   saveState(); renderStudents();
@@ -722,7 +871,7 @@ function addStudents(){
 function removeStudent(id){
   const s = state.students.find(x => x.id === id);
   if (!s) return;
-  if (!confirm(`Retirer « ${s.name} » de la liste ? (ses participations restent dans le journal)`)) return;
+  if (!confirm(`Retirer « ${s.name} » de la session ? (ses participations restent dans le journal, le répertoire est conservé)`)) return;
   state.students = state.students.filter(x => x.id !== id);
   saveState(); renderStudents();
 }
@@ -790,11 +939,12 @@ document.getElementById('btnUndo').addEventListener('click', () => {
   saveState(); renderStudents(); renderTeacher(); renderLog();
 });
 
+/* Le bouton "Réinitialiser" préserve le RÉPERTOIRE, vide la SESSION */
 document.getElementById('btnReset').addEventListener('click', () => {
-  if (!confirm('Réinitialiser toute la session ?')) return;
+  if (!confirm('Réinitialiser toute la session ?\n\n(Le répertoire d\'élèves est conservé.)')) return;
   state = {
     session: {
-      cours:'', scenario:'', date:todayISO(), heureDebut:'', observateur:'', notes:'',
+      cours:'', scenarios:[], date:todayISO(), heureDebut:'', observateur:'', notes:'',
       timerRunning:false, timerElapsedBase:0, timerLastStart:null,
       reactionWindow:30
     },
@@ -884,12 +1034,15 @@ function csvEscape(v){
   const s = String(v ?? '');
   return /[;"\n]/.test(s) ? '"' + s.replace(/"/g,'""') + '"' : s;
 }
+function scenariosString(){
+  return (state.session.scenarios || []).join(' + ');
+}
 
 document.getElementById('btnExportCsv').addEventListener('click', () => {
-  const header = ['Date cours','Cours','Scénario','Rôle','Acteur','Type',
+  const header = ['Date cours','Cours','Scénarios','Rôle','Acteur','Type',
                   'Niveau','Qualité','Destinataire','Temps session (s)','Heure cours',
                   'Déclenché par','Délai depuis déclencheur (s)'];
-  const base = [state.session.date, state.session.cours, state.session.scenario];
+  const base = [state.session.date, state.session.cours, scenariosString()];
 
   const studentRows = state.entries.map(e => {
     const src = e.triggeredBy ? state.teacherEntries.find(x => x.id === e.triggeredBy) : null;
@@ -951,7 +1104,7 @@ document.getElementById('btnExportSummary').addEventListener('click', () => {
 
   const meta = [
     ['Cours', state.session.cours],
-    ['Scénario', state.session.scenario],
+    ['Scénarios', scenariosString()],
     ['Date du cours', state.session.date],
     ['Heure de début', state.session.heureDebut],
     ['Observateur·rice', state.session.observateur],
