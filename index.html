@@ -32,7 +32,6 @@
   h2{font-size:1.05rem;margin:0 0 12px;color:var(--ink)}
   .subtitle{color:var(--muted);font-size:.9rem;margin:0 0 20px}
 
-  /* --- bandeau sticky phases --- */
   .phase-bar{
     position: fixed; top: 0; left: 0; right: 0; z-index: 100;
     background: #fff;
@@ -51,35 +50,23 @@
     text-transform: uppercase; letter-spacing: .06em;
     white-space: nowrap; flex-shrink: 0;
   }
-  .phase-bar-buttons{
-    display: flex; gap: 5px; flex: 1; min-width: 0;
-  }
+  .phase-bar-buttons{ display: flex; gap: 5px; flex: 1; min-width: 0; }
   .phase-btn{
     flex-shrink: 0;
     display: flex; align-items: center; gap: 5px;
-    padding: 6px 11px;
-    border-radius: 9px;
-    border: 1px solid var(--line);
-    background: #fff;
-    font-size: .78rem;
-    font-weight: 500;
-    color: var(--ink);
-    white-space: nowrap;
-    transition: .15s;
+    padding: 6px 11px; border-radius: 9px;
+    border: 1px solid var(--line); background: #fff;
+    font-size: .78rem; font-weight: 500; color: var(--ink);
+    white-space: nowrap; transition: .15s;
   }
   .phase-btn:hover{border-color:#cbd5e1;background:#f8fafc}
   .phase-btn.active{
-    background: var(--pc, var(--primary));
-    color: #fff;
-    border-color: var(--pc, var(--primary));
-    font-weight: 700;
+    background: var(--pc, var(--primary)); color: #fff;
+    border-color: var(--pc, var(--primary)); font-weight: 700;
     box-shadow: 0 2px 6px rgba(0,0,0,.1);
   }
   .phase-btn .ico{font-size: .95rem}
-
-  @media(max-width:640px){
-    .phase-bar-label{display: none}
-  }
+  @media(max-width:640px){ .phase-bar-label{display: none} }
 
   .toolbar{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px}
   button{font:inherit;cursor:pointer;border-radius:10px;border:1px solid var(--line);
@@ -157,10 +144,42 @@
   .roster-info strong{color:var(--ink)}
   .roster-bar button{padding:6px 11px;font-size:.8rem}
 
+  /* --- bilan présence au-dessus de la grille --- */
+  .presence-summary{
+    display:flex;gap:8px;flex-wrap:wrap;align-items:center;
+    padding:10px 12px;margin-bottom:14px;
+    background:#f8fafc;border:1px solid var(--line);border-radius:10px;
+    font-size:.85rem;
+  }
+  .presence-chip{
+    display:inline-flex;align-items:center;gap:5px;
+    padding:3px 10px;border-radius:999px;
+    font-size:.78rem;font-weight:600;
+  }
+  .presence-chip.present{background:#dcfce7;color:#15803d;border:1px solid #86efac}
+  .presence-chip.unstable{background:#fff7ed;color:#c2410c;border:1px solid #fed7aa}
+  .presence-chip.absent{background:#f1f5f9;color:#475569;border:1px solid #cbd5e1}
+
   .students-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(360px,1fr));gap:14px}
   .empty{color:var(--muted);font-style:italic;text-align:center;padding:20px}
   .student-card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
-    padding:14px;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:10px}
+    padding:14px;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:10px;
+    transition:.2s;position:relative}
+  .student-card.absent{
+    opacity:.55;
+    background:#f8fafc;
+  }
+  .student-card.absent::after{
+    content:'ABSENT';
+    position:absolute;top:10px;right:58px;
+    background:#64748b;color:#fff;
+    font-size:.6rem;font-weight:700;letter-spacing:.08em;
+    padding:2px 7px;border-radius:4px;
+  }
+  .student-card.unstable{
+    border-color:#fed7aa;
+    background:linear-gradient(180deg,#fffbf5 0%,#fff 60%);
+  }
   .student-header{display:flex;align-items:center;gap:8px}
   .student-name{flex:1;font-weight:600;border:none;background:transparent;padding:4px 6px;
     border-radius:6px;font-size:1rem}
@@ -170,6 +189,44 @@
     padding:3px 9px;border-radius:999px;white-space:nowrap}
   .btn-remove{border:none;background:transparent;color:#cbd5e1;font-size:1rem;padding:4px 8px;border-radius:6px}
   .btn-remove:hover{color:var(--danger);background:#fef2f2}
+
+  /* --- statut élève --- */
+  .status-row{
+    display:flex;align-items:center;gap:6px;
+    padding:6px 8px;background:#f8fafc;border-radius:9px;
+    flex-wrap:wrap;
+  }
+  .status-label{
+    font-size:.68rem;font-weight:700;color:var(--muted);
+    text-transform:uppercase;letter-spacing:.05em;white-space:nowrap;
+  }
+  .status-buttons{display:flex;gap:4px;flex:1;flex-wrap:wrap}
+  .sbtn{
+    flex:1;min-width:70px;padding:5px 8px;border-radius:7px;
+    border:1px solid var(--line);background:#fff;
+    font-size:.72rem;font-weight:600;color:var(--muted);
+    cursor:pointer;transition:.15s;line-height:1.1;
+    white-space:nowrap;
+  }
+  .sbtn:hover{border-color:#cbd5e1}
+  .sbtn.active[data-s="present"]{background:#dcfce7;color:#15803d;border-color:#86efac}
+  .sbtn.active[data-s="unstable"]{background:#fff7ed;color:#c2410c;border-color:#fed7aa}
+  .sbtn.active[data-s="absent"]{background:#f1f5f9;color:#475569;border-color:#94a3b8}
+  .status-note{
+    width:100%;font-size:.78rem;padding:5px 9px;
+    border:1px solid var(--line);border-radius:7px;
+    background:#fff;color:var(--ink);
+  }
+  .status-note:focus{outline:none;border-color:var(--primary);
+    box-shadow:0 0 0 2px rgba(37,99,235,.1)}
+
+  /* --- désactivation des boutons de participation si absent --- */
+  .student-card.absent .types,
+  .student-card.absent .levels,
+  .student-card.absent .quality-row{
+    pointer-events:none;
+    filter:grayscale(.7);
+  }
 
   .levels{display:flex;gap:5px;flex-wrap:wrap}
   .lvl{font-size:.72rem;padding:5px 9px;border-radius:999px;background:#f8fafc;
@@ -270,6 +327,12 @@
     border:1px solid var(--pbo, transparent);
     white-space:nowrap;
   }
+  .status-badge{
+    font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em;
+    padding:1px 6px;border-radius:4px;white-space:nowrap;
+  }
+  .status-badge.unstable{background:#fff7ed;color:#c2410c;border:1px solid #fed7aa}
+  .status-badge.absent{background:#f1f5f9;color:#475569;border:1px solid #cbd5e1}
   .trigger-arrow{
     color:var(--teacher);font-weight:700;
     width:1em;display:inline-block;text-align:center;
@@ -324,9 +387,6 @@
 </head>
 <body>
 
-<!-- =========================================================
-     BANDEAU STICKY — PHASE EN COURS
-     ========================================================= -->
 <div class="phase-bar">
   <span class="phase-bar-label">Phase en cours :</span>
   <div class="phase-bar-buttons" id="phaseBarButtons"></div>
@@ -426,6 +486,8 @@
   </div>
 </section>
 
+<div class="presence-summary" id="presenceSummary"></div>
+
 <section id="studentsGrid" class="students-grid"></section>
 
 <section class="panel">
@@ -481,6 +543,12 @@ const PHASES = {
 
 const SEQUENCE_POSITIONS = { ouverture:'Ouverture', intermediaire:'Intermédiaire', cloture:'Clôture' };
 const SEMESTER_POSITIONS = { debut:'Début', milieu:'Milieu', fin:'Fin' };
+
+const STUDENT_STATUS = {
+  present:  { label:'Présent',            short:'Présent',  color:'#16a34a', bg:'#dcfce7', fg:'#15803d', border:'#86efac' },
+  unstable: { label:'Connexion instable', short:'Instable', color:'#ea580c', bg:'#fff7ed', fg:'#c2410c', border:'#fed7aa' },
+  absent:   { label:'Absent',             short:'Absent',   color:'#64748b', bg:'#f1f5f9', fg:'#475569', border:'#cbd5e1' }
+};
 
 const TYPES = {
   oral:    { label:'Prise de parole', icon:'🎤', color:'#2563eb' },
@@ -555,12 +623,18 @@ if (!Array.isArray(state.session.scenarios)) {
   }
 }
 
-state.students.forEach(s => { if (s.quality === undefined) s.quality = 3; });
+state.students.forEach(s => {
+  if (s.quality === undefined) s.quality = 3;
+  if (!s.status) s.status = 'present';
+  if (!Array.isArray(s.statusHistory)) s.statusHistory = [];
+  if (typeof s.statusNote !== 'string') s.statusNote = '';
+});
 state.entries.forEach(e => {
   if (e.quality === undefined) e.quality = 3;
   if (e.elapsed === undefined) e.elapsed = 0;
   if (e.triggeredBy === undefined) e.triggeredBy = null;
   if (e.phase === undefined) e.phase = 'mise_en_situation';
+  if (e.studentStatus === undefined) e.studentStatus = 'present';
 });
 state.teacherEntries = state.teacherEntries || [];
 state.teacherEntries.forEach(e => {
@@ -804,6 +878,23 @@ document.getElementById('btnResetTimer').addEventListener('click', () => {
 });
 
 /* =========================================================
+   BILAN DE PRÉSENCE
+   ========================================================= */
+function renderPresenceSummary(){
+  const el = document.getElementById('presenceSummary');
+  if (state.students.length === 0){ el.style.display = 'none'; return; }
+  el.style.display = 'flex';
+  const counts = { present: 0, unstable: 0, absent: 0 };
+  state.students.forEach(s => { counts[s.status] = (counts[s.status] || 0) + 1; });
+  el.innerHTML = `
+    <strong style="color:var(--ink)">Présence :</strong>
+    <span class="presence-chip present">Présents ${counts.present}</span>
+    <span class="presence-chip unstable">Instables ${counts.unstable}</span>
+    <span class="presence-chip absent">Absents ${counts.absent}</span>
+  `;
+}
+
+/* =========================================================
    RENDU ÉLÈVES
    ========================================================= */
 const grid = document.getElementById('studentsGrid');
@@ -814,12 +905,26 @@ function renderStudents(){
   } else {
     grid.innerHTML = state.students.map(s => {
       const total = Object.values(s.counts).reduce((a,b)=>a+b,0);
+      const status = s.status || 'present';
+      const cardClass = status === 'absent' ? 'absent' : (status === 'unstable' ? 'unstable' : '');
       return `
-        <div class="student-card" data-id="${s.id}">
+        <div class="student-card ${cardClass}" data-id="${s.id}">
           <div class="student-header">
             <input class="student-name" data-id="${s.id}" value="${escapeHtml(s.name)}" aria-label="Nom de l'élève">
             <span class="total" title="Total de participations">${total}</span>
             <button class="btn-remove" data-id="${s.id}" title="Retirer cet élève de la session">✕</button>
+          </div>
+          <div class="status-row" title="Statut de présence">
+            <span class="status-label">Statut</span>
+            <div class="status-buttons">
+              ${Object.entries(STUDENT_STATUS).map(([key, st]) => `
+                <button class="sbtn ${status === key ? 'active' : ''}"
+                        data-id="${s.id}" data-s="${key}" title="${st.label}">${st.short}</button>
+              `).join('')}
+            </div>
+            <input class="status-note" data-id="${s.id}"
+                   value="${escapeHtml(s.statusNote || '')}"
+                   placeholder="Note de statut (optionnel) : ex. déconnexion 14h05">
           </div>
           <div class="levels" title="Niveau cognitif">
             ${Object.entries(LEVELS).map(([lvl,label]) => `
@@ -840,7 +945,8 @@ function renderStudents(){
           <div class="q-legend">1 Faible · 2 Passable · 3 Correcte · 4 Bonne · 5 Excellente</div>
           <div class="types">
             ${Object.entries(TYPES).map(([key,t]) => `
-              <button class="type-btn" data-id="${s.id}" data-type="${key}" style="--c:${t.color}">
+              <button class="type-btn" data-id="${s.id}" data-type="${key}" style="--c:${t.color}"
+                      ${status === 'absent' ? 'disabled title="Élève absent — participation désactivée"' : ''}>
                 <span class="ico">${t.icon}</span>
                 <span class="lbl">${t.label}</span>
                 <span class="cnt">${s.counts[key]}</span>
@@ -850,9 +956,30 @@ function renderStudents(){
     }).join('');
   }
   renderRosterInfo();
+  renderPresenceSummary();
 }
 
 grid.addEventListener('click', (e) => {
+  /* statut */
+  const sBtn = e.target.closest('.sbtn');
+  if (sBtn){
+    const s = state.students.find(x => x.id === sBtn.dataset.id);
+    if (s){
+      const newStatus = sBtn.dataset.s;
+      if (newStatus !== s.status){
+        s.status = newStatus;
+        s.statusHistory.push({
+          time: new Date().toISOString(),
+          elapsed: getElapsed(),
+          status: newStatus
+        });
+        saveState();
+        renderStudents();
+      }
+    }
+    return;
+  }
+
   const typeBtn = e.target.closest('.type-btn');
   if (typeBtn) return addParticipation(typeBtn.dataset.id, typeBtn.dataset.type);
 
@@ -876,6 +1003,10 @@ grid.addEventListener('input', (e) => {
   if (e.target.classList.contains('student-name')){
     const s = state.students.find(x => x.id === e.target.dataset.id);
     if (s){ s.name = e.target.value; saveState(); }
+  }
+  if (e.target.classList.contains('status-note')){
+    const s = state.students.find(x => x.id === e.target.dataset.id);
+    if (s){ s.statusNote = e.target.value; saveState(); }
   }
 });
 
@@ -913,7 +1044,10 @@ document.getElementById('btnLoadRoster').addEventListener('click', () => {
       id: uid(), name,
       counts: emptyCounts(),
       currentLevel: 1,
-      quality: 3
+      quality: 3,
+      status: 'present',
+      statusHistory: [],
+      statusNote: ''
     });
   });
   saveState();
@@ -969,7 +1103,10 @@ function renderLastIntervention(){
   const reactionsHtml = reactions.length
     ? reactions.map(r => {
         const delay = Math.round(r.elapsed - lastT.elapsed);
-        return `<span class="reaction-chip">${escapeHtml(r.studentName)}<small>+${delay}s</small></span>`;
+        const st = r.studentStatus && r.studentStatus !== 'present'
+          ? ` <span class="status-badge ${r.studentStatus}">${STUDENT_STATUS[r.studentStatus].short}</span>`
+          : '';
+        return `<span class="reaction-chip">${escapeHtml(r.studentName)}${st}<small>+${delay}s</small></span>`;
       }).join(' ')
     : `<span class="muted">Aucune réaction dans les ${state.session.reactionWindow}s</span>`;
   body.innerHTML = `
@@ -1026,7 +1163,10 @@ function addStudents(){
       id: uid(), name,
       counts: emptyCounts(),
       currentLevel: 1,
-      quality: 3
+      quality: 3,
+      status: 'present',
+      statusHistory: [],
+      statusNote: ''
     });
     addToRoster(name);
   });
@@ -1045,6 +1185,10 @@ function removeStudent(id){
 function addParticipation(studentId, type){
   const s = state.students.find(x => x.id === studentId);
   if (!s) return;
+  if (s.status === 'absent'){
+    alert(`« ${s.name} » est marqué absent. Changez son statut avant d'enregistrer une participation.`);
+    return;
+  }
   ensureTimerRunning();
   const elapsed = getElapsed();
   s.counts[type]++;
@@ -1065,6 +1209,7 @@ function addParticipation(studentId, type){
     level: s.currentLevel,
     quality: s.quality,
     phase: state.session.currentPhase,
+    studentStatus: s.status,
     triggeredBy
   });
   saveState(); renderStudents(); renderLastIntervention(); renderLog();
@@ -1100,7 +1245,6 @@ document.getElementById('btnUndo').addEventListener('click', () => {
   const max = Math.max(tS, tT, tP);
 
   if (tP === max){
-    /* Annule le dernier changement de phase et revient à la phase précédente */
     state.phaseEvents.pop();
     const prev = state.phaseEvents[state.phaseEvents.length - 1];
     state.session.currentPhase = prev ? prev.phase : 'mise_en_situation';
@@ -1190,6 +1334,9 @@ function renderLog(){
     const t = TYPES[e.type];
     const p = PHASES[e.phase] || PHASES.mise_en_situation;
     const isTrig = !!e.triggeredBy;
+    const st = e.studentStatus && e.studentStatus !== 'present'
+      ? `<span class="status-badge ${e.studentStatus}">${STUDENT_STATUS[e.studentStatus].short}</span>`
+      : '';
     let delay = null;
     if (isTrig){
       const src = state.teacherEntries.find(x => x.id === e.triggeredBy);
@@ -1200,6 +1347,7 @@ function renderLog(){
       <span class="trigger-arrow">${isTrig ? '↳' : ''}</span>
       <span class="phase-badge" style="--pb:${p.bg};--pf:${p.fg};--pbo:${p.border}">${p.short}</span>
       <strong>${escapeHtml(e.studentName)}</strong>
+      ${st}
       <span class="log-badge" style="background:${t.color}1a;color:${t.color}">${t.icon} ${t.label}</span>
       <span class="muted" style="font-size:.78rem">N${e.level}</span>
       <span class="log-q q${e.quality}">Q${e.quality}</span>
@@ -1238,10 +1386,13 @@ function seqPosLabel(key){
 function semPosLabel(key){
   return SEMESTER_POSITIONS[key] || '';
 }
+function studentStatusLabel(key){
+  return STUDENT_STATUS[key] ? STUDENT_STATUS[key].label : 'Présent';
+}
 
 document.getElementById('btnExportCsv').addEventListener('click', () => {
   const header = ['Date cours','Cours','Scénarios','Séance n°','Position séquence','Position semestre',
-                  'Phase en cours','Rôle','Acteur','Type',
+                  'Phase en cours','Rôle','Acteur','Statut élève','Type',
                   'Niveau','Qualité','Destinataire','Temps session (s)','Heure cours',
                   'Déclenché par','Délai depuis déclencheur (s)'];
   const base = [
@@ -1254,7 +1405,8 @@ document.getElementById('btnExportCsv').addEventListener('click', () => {
     const src = e.triggeredBy ? state.teacherEntries.find(x => x.id === e.triggeredBy) : null;
     const delay = src ? Math.round(e.elapsed - src.elapsed) : '';
     const srcLabel = src ? `${TEACHER_TYPES[src.type].label} @ ${courseTimeFromElapsed(src.elapsed)}` : '';
-    return [...base, phaseLabel(e.phase), 'Élève', e.studentName, TYPES[e.type].label,
+    return [...base, phaseLabel(e.phase), 'Élève', e.studentName,
+            studentStatusLabel(e.studentStatus), TYPES[e.type].label,
             e.level + ' - ' + LEVELS[e.level],
             e.quality + ' - ' + QUALITY[e.quality],
             '', Math.round(e.elapsed), courseTimeFromElapsed(e.elapsed),
@@ -1262,13 +1414,14 @@ document.getElementById('btnExportCsv').addEventListener('click', () => {
   });
 
   const teacherRows = state.teacherEntries.map(e => [
-    ...base, phaseLabel(e.phase), 'Enseignant·e', 'Enseignant·e', TEACHER_TYPES[e.type].label,
+    ...base, phaseLabel(e.phase), 'Enseignant·e', 'Enseignant·e', '',
+    TEACHER_TYPES[e.type].label,
     '', e.quality + ' - ' + QUALITY[e.quality], e.target || '',
     Math.round(e.elapsed), courseTimeFromElapsed(e.elapsed), '', ''
   ]);
 
   const rows = [...studentRows, ...teacherRows].sort((a,b) =>
-    (a[13] - b[13]) || String(a[8]).localeCompare(String(b[8])));
+    (a[14] - b[14]) || String(a[8]).localeCompare(String(b[8])));
 
   const csv = [header, ...rows].map(r => r.map(csvEscape).join(';')).join('\n');
   download('\uFEFF' + csv, `observations_${state.session.date || todayISO()}.csv`,
@@ -1276,19 +1429,59 @@ document.getElementById('btnExportCsv').addEventListener('click', () => {
 });
 
 document.getElementById('btnExportSummary').addEventListener('click', () => {
-  const header = ['Élève', ...Object.values(TYPES).map(t=>t.label), 'Total','Qualité moy.','Niveau moy.'];
+  /* Tableau élèves — ajout du statut et de la note, et calculs sur les élèves actifs */
+  const header = ['Élève','Statut','Note statut',
+                  ...Object.values(TYPES).map(t=>t.label),
+                  'Total','Qualité moy.','Niveau moy.'];
+
   const rows = state.students.map(s => {
     const own = state.entries.filter(e => e.studentId === s.id);
     const total = Object.values(s.counts).reduce((a,b)=>a+b,0);
     const avgQ = own.length ? (own.reduce((a,e)=>a+e.quality,0)/own.length).toFixed(2) : '—';
     const avgL = own.length ? (own.reduce((a,e)=>a+e.level,0)/own.length).toFixed(2) : '—';
-    return [s.name, ...Object.keys(TYPES).map(k=>s.counts[k]), total, avgQ, avgL];
+    return [
+      s.name,
+      studentStatusLabel(s.status),
+      s.statusNote || '',
+      ...Object.keys(TYPES).map(k=>s.counts[k]),
+      total, avgQ, avgL
+    ];
   });
+
+  /* Bilan de présence + moyennes calculées sur les élèves actifs uniquement */
+  const active = state.students.filter(s => s.status !== 'absent');
+  const activeEntries = state.entries.filter(e => {
+    const s = state.students.find(x => x.id === e.studentId);
+    return s && s.status !== 'absent';
+  });
+  const totalStudents = state.students.length;
+  const nPresent  = state.students.filter(s => s.status === 'present').length;
+  const nUnstable = state.students.filter(s => s.status === 'unstable').length;
+  const nAbsent   = state.students.filter(s => s.status === 'absent').length;
+  const avgQactive = activeEntries.length
+    ? (activeEntries.reduce((a,e)=>a+e.quality,0) / activeEntries.length).toFixed(2)
+    : '—';
+
+  const presenceBlock = [
+    ['Bilan de présence', ''],
+    ['Élèves inscrits dans la session', totalStudents],
+    ['Présents', nPresent],
+    ['Connexion instable', nUnstable],
+    ['Absents', nAbsent],
+    ['Élèves actifs (présents + instables)', active.length],
+    ['Qualité moyenne des interventions (élèves actifs)', avgQactive]
+  ];
 
   const perTypeStudents = Object.keys(TYPES).map(k => {
     const own = state.entries.filter(e => e.type === k);
+    const ownActive = own.filter(e => {
+      const s = state.students.find(x => x.id === e.studentId);
+      return s && s.status !== 'absent';
+    });
     const avgQ = own.length ? (own.reduce((a,e)=>a+e.quality,0)/own.length).toFixed(2) : '—';
-    return [TYPES[k].label, own.length, avgQ];
+    const avgQactive = ownActive.length
+      ? (ownActive.reduce((a,e)=>a+e.quality,0)/ownActive.length).toFixed(2) : '—';
+    return [TYPES[k].label, own.length, ownActive.length, avgQ, avgQactive];
   });
 
   const perTypeTeacher = Object.keys(TEACHER_TYPES).map(k => {
@@ -1308,7 +1501,6 @@ document.getElementById('btnExportSummary').addEventListener('click', () => {
             avgReact, avgDelay, avgQ];
   });
 
-  /* NOUVEAU — répartition par phase */
   const perPhase = Object.keys(PHASES).map(k => {
     const prof = state.teacherEntries.filter(e => e.phase === k);
     const reactions = prof.flatMap(ti =>
@@ -1350,8 +1542,11 @@ document.getElementById('btnExportSummary').addEventListener('click', () => {
     header.map(csvEscape).join(';'),
     ...rows.map(r => r.map(csvEscape).join(';')),
     '',
+    ...presenceBlock.map(r => r.map(csvEscape).join(';')),
+    '',
     'Synthèse par type de participation (élèves)',
-    ['Type','Nb observations','Qualité moy.'].map(csvEscape).join(';'),
+    ['Type','Nb observations (tous)','Nb observations (actifs)',
+     'Qualité moy. (tous)','Qualité moy. (actifs)'].map(csvEscape).join(';'),
     ...perTypeStudents.map(r => r.map(csvEscape).join(';')),
     '',
     'Réactions aux interventions enseignant·e',
