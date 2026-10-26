@@ -22,7 +22,7 @@
     margin:0; font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
     background:var(--bg); color:var(--ink); line-height:1.45;
     padding:
-      calc(24px + env(safe-area-inset-top))
+      calc(24px + 78px + env(safe-area-inset-top))
       calc(16px + env(safe-area-inset-right))
       calc(80px + env(safe-area-inset-bottom))
       calc(16px + env(safe-area-inset-left));
@@ -31,6 +31,55 @@
   h1{font-size:1.5rem;margin:0 0 4px}
   h2{font-size:1.05rem;margin:0 0 12px;color:var(--ink)}
   .subtitle{color:var(--muted);font-size:.9rem;margin:0 0 20px}
+
+  /* --- bandeau sticky phases --- */
+  .phase-bar{
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    background: #fff;
+    border-bottom: 1px solid var(--line);
+    box-shadow: 0 2px 8px rgba(15,23,42,.08);
+    padding:
+      calc(8px + env(safe-area-inset-top))
+      calc(14px + env(safe-area-inset-right))
+      8px
+      calc(14px + env(safe-area-inset-left));
+    display: flex; align-items: center; gap: 10px;
+    overflow-x: auto;
+  }
+  .phase-bar-label{
+    font-size: .72rem; font-weight: 700; color: var(--muted);
+    text-transform: uppercase; letter-spacing: .06em;
+    white-space: nowrap; flex-shrink: 0;
+  }
+  .phase-bar-buttons{
+    display: flex; gap: 5px; flex: 1; min-width: 0;
+  }
+  .phase-btn{
+    flex-shrink: 0;
+    display: flex; align-items: center; gap: 5px;
+    padding: 6px 11px;
+    border-radius: 9px;
+    border: 1px solid var(--line);
+    background: #fff;
+    font-size: .78rem;
+    font-weight: 500;
+    color: var(--ink);
+    white-space: nowrap;
+    transition: .15s;
+  }
+  .phase-btn:hover{border-color:#cbd5e1;background:#f8fafc}
+  .phase-btn.active{
+    background: var(--pc, var(--primary));
+    color: #fff;
+    border-color: var(--pc, var(--primary));
+    font-weight: 700;
+    box-shadow: 0 2px 6px rgba(0,0,0,.1);
+  }
+  .phase-btn .ico{font-size: .95rem}
+
+  @media(max-width:640px){
+    .phase-bar-label{display: none}
+  }
 
   .toolbar{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px}
   button{font:inherit;cursor:pointer;border-radius:10px;border:1px solid var(--line);
@@ -53,7 +102,6 @@
     box-shadow:0 0 0 3px rgba(37,99,235,.12)}
   textarea{resize:vertical;min-height:90px}
 
-  /* --- scénarios en cases à cocher --- */
   .scenario-group{margin-top:14px}
   .scenario-group > label{
     display:block;font-size:.78rem;font-weight:600;color:var(--muted);
@@ -79,7 +127,6 @@
   }
   .scenario-option.checked span{font-weight:600;color:#1d4ed8}
 
-  /* --- chrono --- */
   .timer-bar{
     display:flex;align-items:center;gap:10px;flex-wrap:wrap;
     margin-top:14px;padding:10px 12px;background:#f8fafc;
@@ -98,7 +145,6 @@
     font-size:.85rem;color:var(--muted);
   }
 
-  /* --- ajout élèves + répertoire --- */
   .add-row{display:flex;gap:10px;flex-wrap:wrap}
   .add-row input{flex:1;min-width:180px}
   .roster-bar{
@@ -217,6 +263,13 @@
     font-size:.6rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;
     background:var(--teacher);color:#fff;padding:1px 6px;border-radius:4px;
   }
+  .phase-badge{
+    font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em;
+    padding:1px 7px;border-radius:999px;
+    background: var(--pb, #f1f5f9); color: var(--pf, #475569);
+    border:1px solid var(--pbo, transparent);
+    white-space:nowrap;
+  }
   .trigger-arrow{
     color:var(--teacher);font-weight:700;
     width:1em;display:inline-block;text-align:center;
@@ -241,6 +294,24 @@
   .log-q.q5{background:#dcfce7;color:#15803d}
   .log-empty{color:var(--muted);font-style:italic;font-size:.85rem}
 
+  .phase-marker{
+    display:flex; align-items:center; gap:10px;
+    padding:10px 4px 4px;
+    margin-top:8px;
+    font-size:.72rem;
+    color:var(--muted);
+    font-weight:600;
+  }
+  .phase-marker::before, .phase-marker::after{
+    content:''; flex:1; height:1px; background:var(--line);
+  }
+  .phase-marker .phase-marker-badge{
+    padding:3px 10px; border-radius:999px;
+    font-weight:700; font-size:.72rem;
+    text-transform:uppercase; letter-spacing:.05em;
+    white-space:nowrap;
+  }
+
   @media(max-width:640px){
     .teacher-panel #teacherTypes{grid-template-columns:repeat(2,1fr)}
   }
@@ -253,8 +324,16 @@
 </head>
 <body>
 
+<!-- =========================================================
+     BANDEAU STICKY — PHASE EN COURS
+     ========================================================= -->
+<div class="phase-bar">
+  <span class="phase-bar-label">Phase en cours :</span>
+  <div class="phase-bar-buttons" id="phaseBarButtons"></div>
+</div>
+
 <h1>Grille d'observation – Classe virtuelle</h1>
-<p class="subtitle">Le chrono démarre au premier clic. Toute intervention étudiante dans la fenêtre de réaction suivant une intervention prof est automatiquement liée à celle-ci.</p>
+<p class="subtitle">Le chrono démarre au premier clic. Vérifiez la phase en cours dans le bandeau en haut avant chaque observation.</p>
 
 <div class="toolbar">
   <button id="btnUndo">↩ Annuler le dernier</button>
@@ -275,6 +354,22 @@
       <input type="time" id="inHeureDebut" step="1"></div>
     <div><label for="inObs">Observateur·rice</label>
       <input type="text" id="inObs" placeholder="Votre nom"></div>
+    <div><label for="inSequencePosition">Position dans la séquence</label>
+      <select id="inSequencePosition">
+        <option value="">— choisir —</option>
+        <option value="ouverture">Ouverture</option>
+        <option value="intermediaire">Intermédiaire</option>
+        <option value="cloture">Clôture</option>
+      </select></div>
+    <div><label for="inSequenceNumber">Séance n° (ex. 2/6)</label>
+      <input type="text" id="inSequenceNumber" placeholder="ex. 2/6"></div>
+    <div><label for="inSemesterPosition">Position dans le semestre</label>
+      <select id="inSemesterPosition">
+        <option value="">— choisir —</option>
+        <option value="debut">Début</option>
+        <option value="milieu">Milieu</option>
+        <option value="fin">Fin</option>
+      </select></div>
   </div>
   <div class="scenario-group">
     <label>Scénarios pédagogiques observés (plusieurs choix possibles)</label>
@@ -288,12 +383,9 @@
   </div>
 </section>
 
-<!-- =====================================================
-     SECTION ENSEIGNANT·E
-     ===================================================== -->
 <section class="panel teacher-panel">
   <h2>🧑‍🏫 Interventions de l'enseignant·e</h2>
-  <p class="teacher-hint">Section isolée : chaque clic enregistre une intervention prof horodatée. Les réactions étudiantes dans les secondes suivantes y sont rattachées automatiquement.</p>
+  <p class="teacher-hint">Section isolée : chaque clic enregistre une intervention prof horodatée avec la phase active. Les réactions étudiantes dans les secondes suivantes y sont rattachées automatiquement.</p>
   <div class="teacher-toolbar">
     <div class="quality-row">
       <span class="quality-label">Qualité</span>
@@ -321,9 +413,6 @@
   </div>
 </section>
 
-<!-- =====================================================
-     SECTION ÉLÈVES
-     ===================================================== -->
 <section class="panel">
   <h2>Ajouter des élèves</h2>
   <div class="add-row">
@@ -367,6 +456,32 @@ const SCENARIOS = [
   'Résolution de problèmes'
 ];
 
+const PHASES = {
+  mise_en_situation: {
+    label:'Mise en situation', short:'MES', icon:'🎬',
+    color:'#6366f1', bg:'#eef2ff', fg:'#4338ca', border:'#c7d2fe'
+  },
+  recherche: {
+    label:'Recherche', short:'RCH', icon:'🔍',
+    color:'#0891b2', bg:'#ecfeff', fg:'#0e7490', border:'#a5f3fc'
+  },
+  mise_en_commun: {
+    label:'Mise en commun', short:'MEC', icon:'🤝',
+    color:'#7c3aed', bg:'#f5f3ff', fg:'#6d28d9', border:'#ddd6fe'
+  },
+  entrainement: {
+    label:'Entraînement', short:'ENT', icon:'✏️',
+    color:'#ea580c', bg:'#fff7ed', fg:'#c2410c', border:'#fed7aa'
+  },
+  bilan: {
+    label:'Bilan', short:'BIL', icon:'📝',
+    color:'#16a34a', bg:'#f0fdf4', fg:'#15803d', border:'#bbf7d0'
+  }
+};
+
+const SEQUENCE_POSITIONS = { ouverture:'Ouverture', intermediaire:'Intermédiaire', cloture:'Clôture' };
+const SEMESTER_POSITIONS = { debut:'Début', milieu:'Milieu', fin:'Fin' };
+
 const TYPES = {
   oral:    { label:'Prise de parole', icon:'🎤', color:'#2563eb' },
   chat:    { label:'Chat',            icon:'💬', color:'#0891b2' },
@@ -377,13 +492,13 @@ const TYPES = {
 };
 
 const TEACHER_TYPES = {
-  consigne:     { label:'Consigne',       icon:'📋', color:'#2563eb' },
+  consigne:     { label:'Consigne',        icon:'📋', color:'#2563eb' },
   magistral:    { label:'Cours magistral', icon:'📚', color:'#7c3aed' },
-  feedback:     { label:'Feedback',       icon:'💬', color:'#0891b2' },
-  question:     { label:'Question posée', icon:'❓', color:'#ea580c' },
-  reformulation:{ label:'Reformulation',  icon:'🔄', color:'#6d28d9' },
-  etayage:      { label:'Étayage',        icon:'🪜', color:'#16a34a' },
-  socio:        { label:'Socio-affectif', icon:'🤝', color:'#db2777' }
+  feedback:     { label:'Feedback',        icon:'💬', color:'#0891b2' },
+  question:     { label:'Question posée',  icon:'❓', color:'#ea580c' },
+  reformulation:{ label:'Reformulation',   icon:'🔄', color:'#6d28d9' },
+  etayage:      { label:'Étayage',         icon:'🪜', color:'#16a34a' },
+  socio:        { label:'Socio-affectif',  icon:'🤝', color:'#db2777' }
 };
 
 const LEVELS = { 1:'Restitution', 2:'Reformulation', 3:'Analyse', 4:'Création/transfert' };
@@ -402,12 +517,15 @@ function pad(n){ return String(n).padStart(2,'0'); }
 let state = loadState() || {
   session: {
     cours:'', scenarios:[], date:todayISO(), heureDebut:'', observateur:'', notes:'',
+    sequencePosition:'', sequenceNumber:'', semesterPosition:'',
+    currentPhase:'mise_en_situation',
     timerRunning:false, timerElapsedBase:0, timerLastStart:null,
     reactionWindow:30
   },
   students: [],
   entries: [],
   teacherEntries: [],
+  phaseEvents: [],
   teacherCounts: emptyTeacherCounts(),
   teacherQuality: 3,
   teacherTarget: ''
@@ -420,8 +538,11 @@ state.session.timerRunning = state.session.timerRunning ?? false;
 state.session.timerElapsedBase = state.session.timerElapsedBase ?? 0;
 state.session.timerLastStart = state.session.timerLastStart ?? null;
 state.session.observateur = state.session.observateur || state.session.obs || '';
+state.session.sequencePosition = state.session.sequencePosition || '';
+state.session.sequenceNumber = state.session.sequenceNumber || '';
+state.session.semesterPosition = state.session.semesterPosition || '';
+state.session.currentPhase = state.session.currentPhase || 'mise_en_situation';
 
-/* Migration scenario → scenarios */
 if (!Array.isArray(state.session.scenarios)) {
   state.session.scenarios = [];
   const old = state.session.scenario;
@@ -439,17 +560,19 @@ state.entries.forEach(e => {
   if (e.quality === undefined) e.quality = 3;
   if (e.elapsed === undefined) e.elapsed = 0;
   if (e.triggeredBy === undefined) e.triggeredBy = null;
+  if (e.phase === undefined) e.phase = 'mise_en_situation';
 });
 state.teacherEntries = state.teacherEntries || [];
 state.teacherEntries.forEach(e => {
   if (!e.id) e.id = uid();
   if (e.elapsed === undefined) e.elapsed = 0;
+  if (e.phase === undefined) e.phase = 'mise_en_situation';
 });
+state.phaseEvents = state.phaseEvents || [];
 state.teacherCounts = Object.assign(emptyTeacherCounts(), state.teacherCounts || {});
 state.teacherQuality = state.teacherQuality ?? 3;
 state.teacherTarget = state.teacherTarget || '';
 
-/* --- répertoire persistant --- */
 let roster = loadRoster();
 function loadRoster(){
   try {
@@ -502,7 +625,6 @@ function courseTimeFromElapsed(sec){
   const total = base + Math.floor(sec);
   return `${pad(Math.floor(total/3600)%24)}:${pad(Math.floor((total%3600)/60))}:${pad(total%60)}`;
 }
-function getCourseTime(){ return courseTimeFromElapsed(getElapsed()); }
 
 function ensureTimerRunning(){
   if (!state.session.timerRunning){
@@ -548,12 +670,53 @@ function updateTimerDisplay(){
 }
 
 /* =========================================================
+   BANDEAU PHASE
+   ========================================================= */
+const phaseBarButtonsEl = document.getElementById('phaseBarButtons');
+
+function renderPhaseBar(){
+  const current = state.session.currentPhase;
+  phaseBarButtonsEl.innerHTML = Object.entries(PHASES).map(([key, p]) => {
+    const active = current === key;
+    return `
+      <button class="phase-btn ${active ? 'active' : ''}"
+              data-phase="${key}"
+              style="--pc:${p.color}"
+              title="${p.label}">
+        <span class="ico">${p.icon}</span>
+        <span>${p.label}</span>
+      </button>
+    `;
+  }).join('');
+}
+
+phaseBarButtonsEl.addEventListener('click', (e) => {
+  const btn = e.target.closest('.phase-btn');
+  if (!btn) return;
+  const newPhase = btn.dataset.phase;
+  if (newPhase === state.session.currentPhase) return;
+  ensureTimerRunning();
+  state.session.currentPhase = newPhase;
+  state.phaseEvents.push({
+    time: new Date().toISOString(),
+    elapsed: getElapsed(),
+    phase: newPhase
+  });
+  saveState();
+  renderPhaseBar();
+  renderLog();
+});
+
+/* =========================================================
    SESSION
    ========================================================= */
 const inCours = document.getElementById('inCours');
 const inDate = document.getElementById('inDate');
 const inHeureDebut = document.getElementById('inHeureDebut');
 const inObs = document.getElementById('inObs');
+const inSequencePosition = document.getElementById('inSequencePosition');
+const inSequenceNumber = document.getElementById('inSequenceNumber');
+const inSemesterPosition = document.getElementById('inSemesterPosition');
 const notes = document.getElementById('notes');
 
 function renderSession(){
@@ -561,13 +724,20 @@ function renderSession(){
   inDate.value = state.session.date || todayISO();
   inHeureDebut.value = state.session.heureDebut || '';
   inObs.value = state.session.observateur || '';
+  inSequencePosition.value = state.session.sequencePosition || '';
+  inSequenceNumber.value = state.session.sequenceNumber || '';
+  inSemesterPosition.value = state.session.semesterPosition || '';
   notes.value = state.session.notes || '';
   renderScenarioCheckboxes();
+  renderPhaseBar();
 }
 
 const SESSION_KEYS = {
   inCours:'cours', inDate:'date',
-  inHeureDebut:'heureDebut', inObs:'observateur'
+  inHeureDebut:'heureDebut', inObs:'observateur',
+  inSequencePosition:'sequencePosition',
+  inSequenceNumber:'sequenceNumber',
+  inSemesterPosition:'semesterPosition'
 };
 Object.keys(SESSION_KEYS).forEach(id => {
   const el = document.getElementById(id);
@@ -579,9 +749,7 @@ Object.keys(SESSION_KEYS).forEach(id => {
 inHeureDebut.addEventListener('change', () => { updateTimerDisplay(); renderLog(); });
 notes.addEventListener('input', () => { state.session.notes = notes.value; saveState(); });
 
-/* --- scénarios --- */
 const scenarioCheckboxesEl = document.getElementById('scenarioCheckboxes');
-
 function renderScenarioCheckboxes(){
   const selected = state.session.scenarios || [];
   scenarioCheckboxesEl.innerHTML = SCENARIOS.map(name => {
@@ -594,7 +762,6 @@ function renderScenarioCheckboxes(){
     `;
   }).join('');
 }
-
 scenarioCheckboxesEl.addEventListener('change', (e) => {
   if (e.target.type !== 'checkbox') return;
   const value = e.target.value;
@@ -610,9 +777,6 @@ scenarioCheckboxesEl.addEventListener('change', (e) => {
   renderScenarioCheckboxes();
 });
 
-/* =========================================================
-   CHRONO — boutons
-   ========================================================= */
 document.getElementById('btnStartTimer').addEventListener('click', () => {
   if (state.session.timerRunning){
     state.session.timerElapsedBase = getElapsed();
@@ -800,6 +964,7 @@ function renderLastIntervention(){
     return;
   }
   const t = TEACHER_TYPES[lastT.type];
+  const p = PHASES[lastT.phase] || PHASES.mise_en_situation;
   const reactions = state.entries.filter(e => e.triggeredBy === lastT.id);
   const reactionsHtml = reactions.length
     ? reactions.map(r => {
@@ -810,6 +975,7 @@ function renderLastIntervention(){
   body.innerHTML = `
     <div class="last-intervention-main">
       <span class="log-time">${courseTimeFromElapsed(lastT.elapsed)}</span>
+      <span class="phase-badge" style="--pb:${p.bg};--pf:${p.fg};--pbo:${p.border}">${p.icon} ${p.label}</span>
       <span class="log-badge" style="background:${t.color}1a;color:${t.color}">${t.icon} ${t.label}</span>
       <span class="log-q q${lastT.quality}">Q${lastT.quality}</span>
       ${lastT.target ? `<span class="muted" style="font-size:.8rem">→ ${escapeHtml(lastT.target)}</span>` : ''}
@@ -898,6 +1064,7 @@ function addParticipation(studentId, type){
     type,
     level: s.currentLevel,
     quality: s.quality,
+    phase: state.session.currentPhase,
     triggeredBy
   });
   saveState(); renderStudents(); renderLastIntervention(); renderLog();
@@ -913,7 +1080,8 @@ function addTeacherIntervention(type){
     elapsed,
     type,
     quality: state.teacherQuality,
-    target: (state.teacherTarget || '').trim()
+    target: (state.teacherTarget || '').trim(),
+    phase: state.session.currentPhase
   };
   state.teacherEntries.push(entry);
   state.teacherCounts[type] = (state.teacherCounts[type] || 0) + 1;
@@ -923,11 +1091,20 @@ function addTeacherIntervention(type){
 document.getElementById('btnUndo').addEventListener('click', () => {
   const lastS = state.entries[state.entries.length - 1];
   const lastT = state.teacherEntries[state.teacherEntries.length - 1];
-  if (!lastS && !lastT) return;
+  const lastP = state.phaseEvents[state.phaseEvents.length - 1];
+  if (!lastS && !lastT && !lastP) return;
 
-  const undoT = lastT && (!lastS || lastT.elapsed >= lastS.elapsed);
+  const tS = lastS ? lastS.elapsed : -Infinity;
+  const tT = lastT ? lastT.elapsed : -Infinity;
+  const tP = lastP ? lastP.elapsed : -Infinity;
+  const max = Math.max(tS, tT, tP);
 
-  if (undoT){
+  if (tP === max){
+    /* Annule le dernier changement de phase et revient à la phase précédente */
+    state.phaseEvents.pop();
+    const prev = state.phaseEvents[state.phaseEvents.length - 1];
+    state.session.currentPhase = prev ? prev.phase : 'mise_en_situation';
+  } else if (tT === max){
     const e = state.teacherEntries.pop();
     if (state.teacherCounts[e.type] > 0) state.teacherCounts[e.type]--;
     state.entries.forEach(en => { if (en.triggeredBy === e.id) en.triggeredBy = null; });
@@ -936,24 +1113,26 @@ document.getElementById('btnUndo').addEventListener('click', () => {
     const s = state.students.find(x => x.id === e.studentId);
     if (s && s.counts[e.type] > 0) s.counts[e.type]--;
   }
-  saveState(); renderStudents(); renderTeacher(); renderLog();
+  saveState(); renderStudents(); renderTeacher(); renderPhaseBar(); renderLog();
 });
 
-/* Le bouton "Réinitialiser" préserve le RÉPERTOIRE, vide la SESSION */
 document.getElementById('btnReset').addEventListener('click', () => {
   if (!confirm('Réinitialiser toute la session ?\n\n(Le répertoire d\'élèves est conservé.)')) return;
   state = {
     session: {
       cours:'', scenarios:[], date:todayISO(), heureDebut:'', observateur:'', notes:'',
+      sequencePosition:'', sequenceNumber:'', semesterPosition:'',
+      currentPhase:'mise_en_situation',
       timerRunning:false, timerElapsedBase:0, timerLastStart:null,
       reactionWindow:30
     },
-    students: [], entries: [], teacherEntries: [],
+    students: [], entries: [], teacherEntries: [], phaseEvents: [],
     teacherCounts: emptyTeacherCounts(), teacherQuality: 3, teacherTarget: ''
   };
   localStorage.removeItem(STORAGE_KEY);
   stopTimerLoop();
-  renderSession(); renderStudents(); renderTeacher(); renderLog(); updateTimerDisplay();
+  renderSession(); renderStudents(); renderTeacher(); renderPhaseBar();
+  renderLog(); updateTimerDisplay();
 });
 
 /* =========================================================
@@ -962,21 +1141,22 @@ document.getElementById('btnReset').addEventListener('click', () => {
 const logList = document.getElementById('logList');
 
 function renderLog(){
-  const all = [
+  const events = [
     ...state.entries.map(e => ({...e, role:'student'})),
-    ...state.teacherEntries.map(e => ({...e, role:'teacher'}))
+    ...state.teacherEntries.map(e => ({...e, role:'teacher'})),
+    ...state.phaseEvents.map(e => ({...e, role:'phase'}))
   ].sort((a,b) => {
     if (a.elapsed !== b.elapsed) return a.elapsed - b.elapsed;
     return new Date(a.time || 0) - new Date(b.time || 0);
   });
 
-  if (all.length === 0){
+  if (events.length === 0){
     logList.innerHTML = '<p class="log-empty">Aucune observation enregistrée.</p>';
     return;
   }
 
   const reactionsByTeacher = {};
-  all.forEach(e => {
+  events.forEach(e => {
     if (e.role === 'student' && e.triggeredBy){
       (reactionsByTeacher[e.triggeredBy] = reactionsByTeacher[e.triggeredBy] || []).push(e);
     }
@@ -984,13 +1164,23 @@ function renderLog(){
 
   const wasAtBottom = logList.scrollHeight - logList.scrollTop - logList.clientHeight < 40;
 
-  logList.innerHTML = all.map(e => {
+  logList.innerHTML = events.map(e => {
+    if (e.role === 'phase'){
+      const p = PHASES[e.phase] || PHASES.mise_en_situation;
+      return `<div class="phase-marker">
+        <span class="phase-marker-badge" style="background:${p.color};color:#fff">
+          ${p.icon} ${p.label} · ${courseTimeFromElapsed(e.elapsed)}
+        </span>
+      </div>`;
+    }
     if (e.role === 'teacher'){
       const t = TEACHER_TYPES[e.type];
+      const p = PHASES[e.phase] || PHASES.mise_en_situation;
       const count = (reactionsByTeacher[e.id] || []).length;
       return `<div class="log-item teacher">
         <span class="log-time">${courseTimeFromElapsed(e.elapsed)}</span>
         <span class="role-badge">PROF</span>
+        <span class="phase-badge" style="--pb:${p.bg};--pf:${p.fg};--pbo:${p.border}">${p.short}</span>
         <span class="log-badge" style="background:${t.color}1a;color:${t.color}">${t.icon} ${t.label}</span>
         ${e.target ? `<span class="muted" style="font-size:.78rem">→ ${escapeHtml(e.target)}</span>` : ''}
         <span class="log-q q${e.quality}">Q${e.quality}</span>
@@ -998,6 +1188,7 @@ function renderLog(){
       </div>`;
     }
     const t = TYPES[e.type];
+    const p = PHASES[e.phase] || PHASES.mise_en_situation;
     const isTrig = !!e.triggeredBy;
     let delay = null;
     if (isTrig){
@@ -1007,9 +1198,10 @@ function renderLog(){
     return `<div class="log-item ${isTrig ? 'triggered' : ''}">
       <span class="log-time">${courseTimeFromElapsed(e.elapsed)}</span>
       <span class="trigger-arrow">${isTrig ? '↳' : ''}</span>
+      <span class="phase-badge" style="--pb:${p.bg};--pf:${p.fg};--pbo:${p.border}">${p.short}</span>
       <strong>${escapeHtml(e.studentName)}</strong>
       <span class="log-badge" style="background:${t.color}1a;color:${t.color}">${t.icon} ${t.label}</span>
-      <span class="muted" style="font-size:.78rem">N${e.level} · ${LEVELS[e.level]}</span>
+      <span class="muted" style="font-size:.78rem">N${e.level}</span>
       <span class="log-q q${e.quality}">Q${e.quality}</span>
       ${delay !== null ? `<span class="trigger-delay">+${delay}s</span>` : ''}
     </div>`;
@@ -1037,18 +1229,32 @@ function csvEscape(v){
 function scenariosString(){
   return (state.session.scenarios || []).join(' + ');
 }
+function phaseLabel(key){
+  return PHASES[key] ? PHASES[key].label : '—';
+}
+function seqPosLabel(key){
+  return SEQUENCE_POSITIONS[key] || '';
+}
+function semPosLabel(key){
+  return SEMESTER_POSITIONS[key] || '';
+}
 
 document.getElementById('btnExportCsv').addEventListener('click', () => {
-  const header = ['Date cours','Cours','Scénarios','Rôle','Acteur','Type',
+  const header = ['Date cours','Cours','Scénarios','Séance n°','Position séquence','Position semestre',
+                  'Phase en cours','Rôle','Acteur','Type',
                   'Niveau','Qualité','Destinataire','Temps session (s)','Heure cours',
                   'Déclenché par','Délai depuis déclencheur (s)'];
-  const base = [state.session.date, state.session.cours, scenariosString()];
+  const base = [
+    state.session.date, state.session.cours, scenariosString(),
+    state.session.sequenceNumber || '', seqPosLabel(state.session.sequencePosition),
+    semPosLabel(state.session.semesterPosition)
+  ];
 
   const studentRows = state.entries.map(e => {
     const src = e.triggeredBy ? state.teacherEntries.find(x => x.id === e.triggeredBy) : null;
     const delay = src ? Math.round(e.elapsed - src.elapsed) : '';
     const srcLabel = src ? `${TEACHER_TYPES[src.type].label} @ ${courseTimeFromElapsed(src.elapsed)}` : '';
-    return [...base, 'Élève', e.studentName, TYPES[e.type].label,
+    return [...base, phaseLabel(e.phase), 'Élève', e.studentName, TYPES[e.type].label,
             e.level + ' - ' + LEVELS[e.level],
             e.quality + ' - ' + QUALITY[e.quality],
             '', Math.round(e.elapsed), courseTimeFromElapsed(e.elapsed),
@@ -1056,13 +1262,13 @@ document.getElementById('btnExportCsv').addEventListener('click', () => {
   });
 
   const teacherRows = state.teacherEntries.map(e => [
-    ...base, 'Enseignant·e', 'Enseignant·e', TEACHER_TYPES[e.type].label,
+    ...base, phaseLabel(e.phase), 'Enseignant·e', 'Enseignant·e', TEACHER_TYPES[e.type].label,
     '', e.quality + ' - ' + QUALITY[e.quality], e.target || '',
     Math.round(e.elapsed), courseTimeFromElapsed(e.elapsed), '', ''
   ]);
 
   const rows = [...studentRows, ...teacherRows].sort((a,b) =>
-    (a[9] - b[9]) || String(a[4]).localeCompare(String(b[4])));
+    (a[13] - b[13]) || String(a[8]).localeCompare(String(b[8])));
 
   const csv = [header, ...rows].map(r => r.map(csvEscape).join(';')).join('\n');
   download('\uFEFF' + csv, `observations_${state.session.date || todayISO()}.csv`,
@@ -1102,11 +1308,34 @@ document.getElementById('btnExportSummary').addEventListener('click', () => {
             avgReact, avgDelay, avgQ];
   });
 
+  /* NOUVEAU — répartition par phase */
+  const perPhase = Object.keys(PHASES).map(k => {
+    const prof = state.teacherEntries.filter(e => e.phase === k);
+    const reactions = prof.flatMap(ti =>
+      state.entries.filter(e => e.triggeredBy === ti.id));
+    const delays = prof.flatMap(ti =>
+      state.entries.filter(e => e.triggeredBy === ti.id)
+                    .map(e => e.elapsed - ti.elapsed));
+    const stu = state.entries.filter(e => e.phase === k);
+    const avgReact = prof.length
+      ? (reactions.length / prof.length).toFixed(2) : '—';
+    const avgDelay = delays.length
+      ? (delays.reduce((a,b)=>a+b,0)/delays.length).toFixed(1) : '—';
+    const avgQprof = prof.length
+      ? (prof.reduce((a,e)=>a+e.quality,0)/prof.length).toFixed(2) : '—';
+    return [PHASES[k].label,
+            prof.length, stu.length, reactions.length,
+            avgReact, avgDelay, avgQprof];
+  });
+
   const meta = [
     ['Cours', state.session.cours],
     ['Scénarios', scenariosString()],
     ['Date du cours', state.session.date],
     ['Heure de début', state.session.heureDebut],
+    ['Séance n°', state.session.sequenceNumber],
+    ['Position dans la séquence', seqPosLabel(state.session.sequencePosition)],
+    ['Position dans le semestre', semPosLabel(state.session.semesterPosition)],
     ['Observateur·rice', state.session.observateur],
     ['Fenêtre de réaction (s)', state.session.reactionWindow],
     ['Nb observations élèves', state.entries.length],
@@ -1128,7 +1357,13 @@ document.getElementById('btnExportSummary').addEventListener('click', () => {
     'Réactions aux interventions enseignant·e',
     ['Type intervention','Nb interventions','Nb réactions',
      'Réactions moy. / intervention','Délai moy. (s)','Qualité moy.'].map(csvEscape).join(';'),
-    ...perTypeTeacher.map(r => r.map(csvEscape).join(';'))
+    ...perTypeTeacher.map(r => r.map(csvEscape).join(';')),
+    '',
+    'Répartition par phase',
+    ['Phase','Interventions prof','Observations élèves',
+     'Réactions aux prof','Réactions moy. / intervention prof',
+     'Délai moy. (s)','Qualité moy. prof'].map(csvEscape).join(';'),
+    ...perPhase.map(r => r.map(csvEscape).join(';'))
   ];
 
   download('\uFEFF' + lines.join('\n'),
@@ -1147,6 +1382,7 @@ document.getElementById('btnExportJson').addEventListener('click', () => {
 renderSession();
 renderStudents();
 renderTeacher();
+renderPhaseBar();
 renderLog();
 updateTimerDisplay();
 if (state.session.timerRunning) startTimerLoop();
